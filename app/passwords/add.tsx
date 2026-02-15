@@ -1,3 +1,5 @@
+import { StyleSheet } from 'react-native';
+import { SafeAreaView } from 'react-native-safe-area-context';
 import { router } from 'expo-router';
 import { PasswordForm } from '@/components/password-form';
 import { createPassword } from '@/lib/password-service';
@@ -9,5 +11,15 @@ export default function AddPasswordScreen() {
     router.back();
   }
 
-  return <PasswordForm onSubmit={handleSubmit} submitLabel="Save Password" />;
+  return (
+    <SafeAreaView style={styles.safeArea} edges={['top']}>
+      <PasswordForm onSubmit={handleSubmit} submitLabel="Save Password" />
+    </SafeAreaView>
+  );
 }
+
+const styles = StyleSheet.create({
+  safeArea: {
+    flex: 1,
+  },
+});

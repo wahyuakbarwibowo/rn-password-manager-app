@@ -1,9 +1,11 @@
 import { useEffect, useState } from 'react';
-import { View, StyleSheet } from 'react-native';
+import { StyleSheet } from 'react-native';
 import { DarkTheme, DefaultTheme, ThemeProvider } from '@react-navigation/native';
 import { Stack } from 'expo-router';
 import { StatusBar } from 'expo-status-bar';
 import { PaperProvider, MD3LightTheme, MD3DarkTheme, Text, Button } from 'react-native-paper';
+import { SafeAreaProvider, SafeAreaView } from 'react-native-safe-area-context';
+import { BlurView } from 'expo-blur';
 import * as LocalAuthentication from 'expo-local-authentication';
 import MaterialIcons from '@expo/vector-icons/MaterialIcons';
 import 'react-native-reanimated';
@@ -53,6 +55,7 @@ export default function RootLayout() {
   const [isAuthenticated, setIsAuthenticated] = useState(false);
   const [needsAuth, setNeedsAuth] = useState(false);
   const [authChecked, setAuthChecked] = useState(false);
+  const [authInProgress, setAuthInProgress] = useState(false);
 
   useEffect(() => {
     checkAuth();
@@ -74,12 +77,17 @@ export default function RootLayout() {
   }
 
   async function authenticate() {
-    const result = await LocalAuthentication.authenticateAsync({
-      promptMessage: 'Unlock Aminmart Password Manager',
-      fallbackLabel: 'Use Passcode',
-    });
-    if (result.success) {
-      setIsAuthenticated(true);
+    setAuthInProgress(true);
+    try {
+      const result = await LocalAuthentication.authenticateAsync({
+        promptMessage: 'Unlock Aminmart Password Manager',
+        fallbackLabel: 'Use Passcode',
+      });
+      if (result.success) {
+        setIsAuthenticated(true);
+      }
+    } finally {
+      setAuthInProgress(false);
     }
   }
 
@@ -87,57 +95,66 @@ export default function RootLayout() {
 
   if (!authChecked) {
     return (
-      <View style={[styles.lockScreen, { backgroundColor: isDark ? '#151718' : '#fff' }]}>
-        <StatusBar style="auto" />
-      </View>
+      <SafeAreaProvider>
+        <SafeAreaView style={[styles.lockScreen, { backgroundColor: isDark ? '#151718' : '#fff' }]}>
+          <StatusBar style="auto" />
+        </SafeAreaView>
+      </SafeAreaProvider>
     );
   }
 
   if (needsAuth && !isAuthenticated) {
     return (
-      <PaperProvider theme={isDark ? paperDarkTheme : paperLightTheme}>
-        <View style={[styles.lockScreen, { backgroundColor: isDark ? '#151718' : '#fff' }]}>
-          <MaterialIcons name="lock" size={64} color={pinkColor} />
-          <Text variant="headlineSmall" style={[styles.lockTitle, { color: isDark ? '#ECEDEE' : '#11181C' }]}>
-            Aminmart Password Manager
-          </Text>
-          <Text variant="bodyMedium" style={[styles.lockSubtitle, { color: isDark ? '#9BA1A6' : '#6B7280' }]}>
-            Authenticate to unlock
-          </Text>
-          <Button mode="contained" onPress={authenticate} style={styles.unlockButton} buttonColor={pinkColor}>
-            Unlock
-          </Button>
-          <StatusBar style="auto" />
-        </View>
-      </PaperProvider>
+      <SafeAreaProvider>
+        <PaperProvider theme={isDark ? paperDarkTheme : paperLightTheme}>
+          <SafeAreaView style={[styles.lockScreen, { backgroundColor: isDark ? '#151718' : '#fff' }]}>
+            <MaterialIcons name="lock" size={64} color={pinkColor} />
+            <Text variant="headlineSmall" style={[styles.lockTitle, { color: isDark ? '#ECEDEE' : '#11181C' }]}>
+              Aminmart Password Manager
+            </Text>
+            <Text variant="bodyMedium" style={[styles.lockSubtitle, { color: isDark ? '#9BA1A6' : '#6B7280' }]}>
+              Authenticate to unlock
+            </Text>
+            <Button mode="contained" onPress={authenticate} style={styles.unlockButton} buttonColor={pinkColor}>
+              Unlock
+            </Button>
+            <StatusBar style="auto" />
+            {authInProgress && (
+              <BlurView
+                intensity={90}
+                tint={isDark ? 'dark' : 'light'}
+                style={styles.blurOverlay}
+              />
+            )}
+          </SafeAreaView>
+        </PaperProvider>
+      </SafeAreaProvider>
     );
   }
 
   return (
-    <PaperProvider theme={isDark ? paperDarkTheme : paperLightTheme}>
-      <ThemeProvider value={isDark ? navDarkTheme : navLightTheme}>
-        <Stack>
-          <Stack.Screen name="index" options={{ title: 'Aminmart Password Manager' }} />
-          <Stack.Screen
-            name="passwords/add"
-            options={{ presentation: 'modal', title: 'Add Password' }}
-          />
-          <Stack.Screen
-            name="passwords/[id]"
-            options={{ title: 'Password Detail' }}
-          />
-          <Stack.Screen
-            name="passwords/edit/[id]"
-            options={{ presentation: 'modal', title: 'Edit Password' }}
-          />
-          <Stack.Screen
-            name="settings"
-            options={{ title: 'Settings' }}
-          />
-        </Stack>
-        <StatusBar style="auto" />
-      </ThemeProvider>
-    </PaperProvider>
+    <SafeAreaProvider>
+      <PaperProvider theme={isDark ? paperDarkTheme : paperLightTheme}>
+        <ThemeProvider value={isDark ? navDarkTheme : navLightTheme}>
+          <Stack>
+            <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
+            <Stack.Screen
+              name="passwords/add"
+              options={{ presentation: 'modal', title: 'Add Password' }}
+            />
+            <Stack.Screen
+              name="passwords/[id]"
+              options={{ title: 'Password Detail' }}
+            />
+            <Stack.Screen
+              name="passwords/edit/[id]"
+              options={{ presentation: 'modal', title: 'Edit Password' }}
+            />
+          </Stack>
+          <StatusBar style="auto" />
+        </ThemeProvider>
+      </PaperProvider>
+    </SafeAreaProvider>
   );
 }
 
@@ -147,6 +164,7 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     alignItems: 'center',
     gap: 12,
+    position: 'relative',
   },
   lockTitle: {
     marginTop: 16,
@@ -158,5 +176,8 @@ const styles = StyleSheet.create({
   unlockButton: {
     marginTop: 16,
     paddingHorizontal: 16,
+  },
+  blurOverlay: {
+    ...StyleSheet.absoluteFillObject,
   },
 });

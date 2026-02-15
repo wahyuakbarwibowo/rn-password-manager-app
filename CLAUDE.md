@@ -37,6 +37,12 @@ types/                  — TypeScript interfaces
 - `bun run lint` — Run ESLint
 - `bunx tsc --noEmit` — Type check
 
+## Recent Changes
+
+- Added safe-area wrapping to the add-password modal so the input form avoids notches and on-screen cameras, matching the new tab layout.
+- Dashboard now exposes categorical summaries and fixes the biometric warning banner route so it navigates to `/settings`.
+- Lock screen blur: `expo-blur` now darkens the view while the biometric/fallback prompt is active, improving focus and privacy.
+
 ## Architecture Decisions
 
 - Only `password` and `notes` fields are encrypted. Other fields (title, username, website, category) remain plaintext for SQL search.
