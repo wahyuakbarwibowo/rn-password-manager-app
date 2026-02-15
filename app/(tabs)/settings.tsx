@@ -22,7 +22,6 @@ export default function SettingsScreen() {
   const [biometricOn, setBiometricOn] = useState(false);
   const [loading, setLoading] = useState(false);
 
-  // Backup password dialog
   const [backupDialogVisible, setBackupDialogVisible] = useState(false);
   const [restoreDialogVisible, setRestoreDialogVisible] = useState(false);
   const [backupPassword, setBackupPassword] = useState('');
@@ -178,7 +177,6 @@ export default function SettingsScreen() {
         />
       </List.Section>
 
-      {/* Backup Password Dialog */}
       <Portal>
         <Dialog visible={backupDialogVisible} onDismiss={() => setBackupDialogVisible(false)}>
           <Dialog.Title>Backup Password</Dialog.Title>

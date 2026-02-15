@@ -1,5 +1,5 @@
 import { useCallback, useRef, useState } from 'react';
-import { FlatList, StyleSheet, TouchableOpacity, View } from 'react-native';
+import { FlatList, StyleSheet, TouchableOpacity } from 'react-native';
 import { router, useFocusEffect, useNavigation } from 'expo-router';
 import MaterialIcons from '@expo/vector-icons/MaterialIcons';
 
@@ -31,19 +31,13 @@ export default function PasswordListScreen() {
     }, [loadPasswords])
   );
 
-  // Set header right buttons
   useFocusEffect(
     useCallback(() => {
       navigation.setOptions({
         headerRight: () => (
-          <View style={styles.headerButtons}>
-            <TouchableOpacity onPress={() => router.push('/settings')} style={styles.headerButton}>
-              <MaterialIcons name="settings" size={24} color={tintColor} />
-            </TouchableOpacity>
-            <TouchableOpacity onPress={() => router.push('/passwords/add')} style={styles.headerButton}>
-              <MaterialIcons name="add" size={28} color={tintColor} />
-            </TouchableOpacity>
-          </View>
+          <TouchableOpacity onPress={() => router.push('/passwords/add')} style={styles.headerButton}>
+            <MaterialIcons name="add" size={28} color={tintColor} />
+          </TouchableOpacity>
         ),
       });
     }, [navigation, tintColor])
@@ -86,11 +80,6 @@ export default function PasswordListScreen() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-  },
-  headerButtons: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 4,
   },
   headerButton: {
     marginRight: 8,
