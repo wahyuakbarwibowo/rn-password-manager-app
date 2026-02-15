@@ -14,10 +14,12 @@ export interface PasswordRow {
   id: number;
   title: string;
   username: string;
-  password: string; // encrypted
+  password: string;
   website: string;
-  notes: string; // encrypted
+  notes: string;
   category: string;
+  ciphertext?: string;
+  nonce?: string;
   created_at: string;
   updated_at: string;
 }

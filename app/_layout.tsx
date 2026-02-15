@@ -13,6 +13,7 @@ import 'react-native-reanimated';
 import { useColorScheme } from '@/hooks/use-color-scheme';
 import { isBiometricEnabled } from '@/lib/settings-service';
 import { getDatabase } from '@/lib/database';
+import { ensureEncryptionKey } from '@/lib/crypto';
 
 const pinkColor = '#E91E8A';
 
@@ -63,6 +64,8 @@ export default function RootLayout() {
   }, []);
 
   async function checkAuth() {
+    // Ensure encryption key exists before anything else
+    await ensureEncryptionKey();
     // Ensure DB is initialized before checking settings
     await getDatabase();
     const enabled = await isBiometricEnabled();

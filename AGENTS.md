@@ -28,4 +28,7 @@
 - Include screenshots or short videos for UI changes, especially if they affect navigation or biometric flows.
 
 ## Security & Configuration Notes
-- Only `password` and `notes` fields are encrypted with AES (see `lib/crypto.ts`). Be cautious when touching the hard-coded encryption key—future work will replace it with a master password or biometric-derived secret.
+- Secrets are encrypted via a vault model in `lib/crypto.ts`: PBKDF2-SHA256 (200k iterations) derives a master key, then AES-256-GCM encrypts a random 32-byte vault key and entry payloads.
+- `passwords` rows now rely on `ciphertext` + `nonce` (Base64) for encrypted secret data; legacy `password`/`notes` columns are compatibility fields.
+- Vault metadata is stored in `vault_meta` (`salt`, `encrypted_vault_key`, `vault_key_nonce`) and seeded by startup (`ensureEncryptionKey`).
+- Backup/export uses encrypted envelope `version: 2` with PBKDF2 + AES-GCM in `lib/backup-service.ts`; treat old backup formats as legacy.
