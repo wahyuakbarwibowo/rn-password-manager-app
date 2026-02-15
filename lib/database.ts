@@ -21,5 +21,12 @@ export async function getDatabase(): Promise<SQLite.SQLiteDatabase> {
     );
   `);
 
+  await db.execAsync(`
+    CREATE TABLE IF NOT EXISTS settings (
+      key TEXT PRIMARY KEY,
+      value TEXT NOT NULL
+    );
+  `);
+
   return db;
 }
