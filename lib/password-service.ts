@@ -6,10 +6,16 @@ async function rowToEntry(row: PasswordRow): Promise<PasswordEntry> {
   let password = row.password ?? '';
   let notes = row.notes ?? '';
 
-  if (row.ciphertext && row.nonce) {
-    const decrypted = await decryptSecrets(row.ciphertext, row.nonce);
-    password = decrypted.password;
-    notes = decrypted.notes;
+  // Only decrypt if ciphertext exists and password/notes are empty (migrated data)
+  if (row.ciphertext && row.nonce && (!password || !notes)) {
+    try {
+      const decrypted = await decryptSecrets(row.ciphertext, row.nonce);
+      password = decrypted.password;
+      notes = decrypted.notes;
+    } catch (error) {
+      // If decryption fails, fall back to plain text values
+      console.warn('Failed to decrypt password entry, using plain text:', error);
+    }
   }
 
   return {

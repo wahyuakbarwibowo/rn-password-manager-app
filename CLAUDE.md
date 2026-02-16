@@ -2,12 +2,15 @@
 
 Offline password manager app built with React Native Expo.
 
+> ⚠️ **Security Disclaimer**: This project is for learning and experimentation only.  
+> The encryption/decryption logic and overall architecture have not been audited and **must not** be used to protect real passwords or sensitive data in production.
+
 ## Tech Stack
 
 - **Framework**: React Native with Expo (SDK 54, Expo Router v6)
 - **Language**: TypeScript (strict mode)
 - **Database**: expo-sqlite (local SQLite)
-- **Encryption**: crypto-js (AES-256) for password & notes fields
+- **Encryption**: Simple XOR-based scheme driven by a user master password (for learning only; cryptographically weak and not suitable for production)
 - **Navigation**: Stack navigator (expo-router)
 
 ## Project Structure
@@ -45,10 +48,16 @@ types/                  — TypeScript interfaces
 
 ## Architecture Decisions
 
-- Only `password` and `notes` fields are encrypted. Other fields (title, username, website, category) remain plaintext for SQL search.
-- Encryption key is hardcoded in `lib/crypto.ts` — marked for future replacement with master password or biometric-derived key.
+- Only `password` and `notes` fields are “encrypted”. Other fields (title, username, website, category) remain plaintext for SQL search.
+- Vault model (educational): `lib/crypto.ts` uses a user-provided master password to:
+  - store a SHA-256 hash of the master password in the `settings` table (`master_password_hash`) for unlock checks,
+  - derive a simple in-memory key (the password bytes) used for a XOR-based transform of the `{ password, notes }` JSON payload.
+- `ciphertext` holds the Base64-encoded XOR result; `nonce` is filled with random bytes but **not used** in the scheme (kept only for schema compatibility).
+- Master password is entered on first launch to “initialize” the vault, and on subsequent launches to unlock it; the raw password is not stored, but the hash allows offline guessing and must be considered weak.
+- Biometric unlock gates access to the app UI but does not replace the master password (it only acts as a convenience lock screen).
+- Backup/export is a JSON envelope (`version: 1`) in `lib/backup-service.ts` that XOR-encrypts the serialized `passwords` payload with a backup password (also weak and for learning only).
 - No state management library — uses `useState` + `useFocusEffect` for simplicity.
-- No UI library — all components are custom with React Native `StyleSheet`.
+- No UI library — all components are custom with React Native `StyleSheet` and `react-native-paper` for basic theming.
 - Dark mode supported via `useColorScheme` hook and themed color constants.
 
 ## Conventions

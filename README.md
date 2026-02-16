@@ -1,50 +1,41 @@
-# Welcome to your Expo app 👋
+# Aminmart Password Manager
 
-This is an [Expo](https://expo.dev) project created with [`create-expo-app`](https://www.npmjs.com/package/create-expo-app).
+Offline password manager app built with React Native Expo. **This project is for learning purposes only and must not be used to store real passwords or sensitive data.**
 
-## Get started
+## Security Disclaimer
 
-1. Install dependencies
+- **Educational only**: The encryption/decryption logic in this repository is designed to be understandable for learning, not to meet production-grade security standards.
+- **Not for real secrets**: Do not use this app to store actual passwords, banking information, or any sensitive personal data.
+- **No security guarantees**: The author and contributors provide no guarantees about the strength of the cryptography, protection against attacks, or safety of the stored data.
+- **Use at your own risk**: Treat all secrets managed by this app as disposable test data.
 
-   ```bash
-   npm install
-   ```
+## Getting Started
 
-2. Start the app
-
-   ```bash
-   npx expo start
-   ```
-
-In the output, you'll find options to open the app in a
-
-- [development build](https://docs.expo.dev/develop/development-builds/introduction/)
-- [Android emulator](https://docs.expo.dev/workflow/android-studio-emulator/)
-- [iOS simulator](https://docs.expo.dev/workflow/ios-simulator/)
-- [Expo Go](https://expo.dev/go), a limited sandbox for trying out app development with Expo
-
-You can start developing by editing the files inside the **app** directory. This project uses [file-based routing](https://docs.expo.dev/router/introduction).
-
-## Get a fresh project
-
-When you're ready, run:
+Install dependencies:
 
 ```bash
-npm run reset-project
+bun install
 ```
 
-This command will move the starter code to the **app-example** directory and create a blank **app** directory where you can start developing.
+Run the app in development:
 
-## Learn more
+```bash
+bun start
+```
 
-To learn more about developing your project with Expo, look at the following resources:
+Then open it in:
 
-- [Expo documentation](https://docs.expo.dev/): Learn fundamentals, or go into advanced topics with our [guides](https://docs.expo.dev/guides).
-- [Learn Expo tutorial](https://docs.expo.dev/tutorial/introduction/): Follow a step-by-step tutorial where you'll create a project that runs on Android, iOS, and the web.
+- Android emulator
+- iOS simulator
+- Expo Go on a physical device
 
-## Join the community
+## Project Overview
 
-Join our community of developers creating universal apps.
+Key pieces:
 
-- [Expo on GitHub](https://github.com/expo/expo): View our open source platform and contribute.
-- [Discord community](https://chat.expo.dev): Chat with Expo users and ask questions.
+- `app/` – screens and navigation (Expo Router)
+- `lib/crypto.ts` – master-password-based vault encryption (for learning)
+- `lib/backup-service.ts` – encrypted backup and restore (for learning)
+- `lib/password-service.ts` – CRUD access to the `passwords` table in SQLite
+
+See `CLAUDE.md` and `AGENTS.md` for more implementation details.

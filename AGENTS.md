@@ -28,7 +28,9 @@
 - Include screenshots or short videos for UI changes, especially if they affect navigation or biometric flows.
 
 ## Security & Configuration Notes
-- Secrets are encrypted via a vault model in `lib/crypto.ts`: PBKDF2-SHA256 (200k iterations) derives a master key, then AES-256-GCM encrypts a random 32-byte vault key and entry payloads.
-- `passwords` rows now rely on `ciphertext` + `nonce` (Base64) for encrypted secret data; legacy `password`/`notes` columns are compatibility fields.
-- Vault metadata is stored in `vault_meta` (`salt`, `encrypted_vault_key`, `vault_key_nonce`) and seeded by startup (`ensureEncryptionKey`).
-- Backup/export uses encrypted envelope `version: 2` with PBKDF2 + AES-GCM in `lib/backup-service.ts`; treat old backup formats as legacy.
+
+- This repository is **educational only**: the current crypto and storage design is meant for learning, not for production use. Do not use it to store real secrets.
+- Secrets are “encrypted” via a very simple XOR-based scheme in `lib/crypto.ts`, using the user’s master password bytes as the key. This is cryptographically weak and trivially breakable; it exists only to illustrate end-to-end flows (master password, lock screen, backup/restore).
+- `passwords` rows rely on `ciphertext` + `nonce` (Base64) for secret data; `nonce` is currently unused (schema compatibility only). Legacy `password`/`notes` columns are compatibility fields.
+- The master password hash is stored in `settings` under `master_password_hash` (SHA-256 via `expo-crypto`) to check unlock attempts; this is not hardened against offline guessing.
+- Backup/export uses a JSON envelope (`version: 1`) in `lib/backup-service.ts` that XOR-encrypts the serialized payload with a backup password (also weak). There is **no integrity protection** and no formal security audit; all data should be considered non-secure.
