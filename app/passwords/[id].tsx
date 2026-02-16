@@ -6,6 +6,7 @@ import {
   View,
   Alert,
 } from 'react-native';
+import { SafeAreaView } from 'react-native-safe-area-context';
 import { router, useLocalSearchParams, useFocusEffect, useNavigation } from 'expo-router';
 import MaterialIcons from '@expo/vector-icons/MaterialIcons';
 import * as Clipboard from 'expo-clipboard';
@@ -80,14 +81,38 @@ export default function PasswordDetailScreen() {
 
   if (!entry) {
     return (
-      <ThemedView style={styles.container}>
-        <ThemedText>Loading...</ThemedText>
-      </ThemedView>
+      <SafeAreaView style={[styles.safeArea, { backgroundColor }]} edges={['top', 'bottom']}>
+        <View style={styles.headerContainer}>
+          <ThemedText type="title" style={styles.headerTitle}>Password Detail</ThemedText>
+        </View>
+        <View style={styles.centeredContent}>
+          <ThemedText>Loading...</ThemedText>
+        </View>
+      </SafeAreaView>
     );
   }
 
   return (
-    <ScrollView style={[styles.container, { backgroundColor }]}>
+    <SafeAreaView 
+      style={[styles.safeArea, { backgroundColor }]}
+      edges={['top', 'bottom']}
+    >
+      <View style={styles.headerContainer}>
+        <View style={styles.headerRow}>
+          <ThemedText type="title" style={styles.headerTitle}>Password Detail</ThemedText>
+          <TouchableOpacity
+            onPress={() => router.push(`/passwords/edit/${id}`)}
+            style={styles.headerButton}
+          >
+            <MaterialIcons name="edit" size={24} color={tintColor} />
+          </TouchableOpacity>
+        </View>
+      </View>
+      <ScrollView 
+        style={styles.container}
+        contentInsetAdjustmentBehavior="automatic"
+        automaticallyAdjustKeyboardInsets={true}
+      >
       <View style={styles.header}>
         <ThemedText type="title" style={styles.title}>{entry.title}</ThemedText>
         <CategoryBadge categoryKey={entry.category} />
@@ -166,6 +191,7 @@ export default function PasswordDetailScreen() {
 
       <View style={styles.bottomSpacer} />
     </ScrollView>
+    </SafeAreaView>
   );
 }
 
@@ -198,9 +224,34 @@ function DetailRow({
 }
 
 const styles = StyleSheet.create({
+  safeArea: {
+    flex: 1,
+  },
   container: {
     flex: 1,
     padding: 16,
+  },
+  headerContainer: {
+    paddingHorizontal: 16, // Memberikan padding horizontal agar sejajar dengan konten
+    paddingTop: 10, // Memberikan sedikit ruang dari atas
+    paddingBottom: 10, // Memberikan sedikit ruang dari bawah
+  },
+  headerTitle: {
+    fontSize: 24,
+    fontWeight: 'bold',
+  },
+  headerRow: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+  },
+  headerButton: {
+    padding: 8,
+  },
+  centeredContent: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
   },
   header: {
     flexDirection: 'row',

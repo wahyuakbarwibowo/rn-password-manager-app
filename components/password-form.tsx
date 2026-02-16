@@ -199,6 +199,9 @@ const styles = StyleSheet.create({
     paddingVertical: 12,
     fontSize: 16,
   },
+  field: {
+    marginBottom: 16,
+  },
   passwordRow: {
     flexDirection: 'row',
     alignItems: 'center',

@@ -26,7 +26,7 @@ export default function EditPasswordScreen() {
 
   if (!entry) {
     return (
-      <SafeAreaView style={[styles.safeArea, { backgroundColor }]} edges={['bottom']}>
+      <SafeAreaView style={[styles.safeArea, { backgroundColor }]} edges={['top', 'bottom']}>
         <View style={styles.loadingContainer}>
           <ThemedText>Loading...</ThemedText>
         </View>
@@ -40,7 +40,10 @@ export default function EditPasswordScreen() {
   }
 
   return (
-    <SafeAreaView style={[styles.safeArea, { backgroundColor }]} edges={['bottom']}>
+    <SafeAreaView style={[styles.safeArea, { backgroundColor }]} edges={['top', 'bottom']}>
+      <View style={styles.headerContainer}>
+        <ThemedText type="title" style={styles.headerTitle}>Edit Password</ThemedText>
+      </View>
       <PasswordForm
         initialValues={{
           title: entry.title,
@@ -60,6 +63,15 @@ export default function EditPasswordScreen() {
 const styles = StyleSheet.create({
   safeArea: {
     flex: 1,
+  },
+  headerContainer: {
+    paddingHorizontal: 16, // Memberikan padding horizontal agar sejajar dengan form
+    paddingTop: 10, // Memberikan sedikit ruang dari atas
+    paddingBottom: 10, // Memberikan sedikit ruang dari bawah
+  },
+  headerTitle: {
+    fontSize: 24,
+    fontWeight: 'bold',
   },
   loadingContainer: {
     flex: 1,

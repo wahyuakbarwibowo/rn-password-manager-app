@@ -143,15 +143,21 @@ export default function RootLayout() {
             <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
             <Stack.Screen
               name="passwords/add"
-              options={{ presentation: 'modal', title: 'Add Password' }}
+              options={{
+                headerShown: false, // Sembunyikan header dan tampilkan dalam konten
+              }}
             />
             <Stack.Screen
               name="passwords/[id]"
-              options={{ title: 'Password Detail' }}
+              options={{ 
+                headerShown: false, // Sembunyikan header dan tampilkan dalam konten seperti halaman add/edit
+              }}
             />
             <Stack.Screen
               name="passwords/edit/[id]"
-              options={{ presentation: 'modal', title: 'Edit Password' }}
+              options={{
+                headerShown: false, // Sembunyikan header dan tampilkan dalam konten
+              }}
             />
           </Stack>
           <StatusBar style="auto" />

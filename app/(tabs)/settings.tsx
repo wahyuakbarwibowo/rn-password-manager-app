@@ -16,7 +16,6 @@ import {
 
 import { useThemeColor } from '@/hooks/use-theme-color';
 import { isBiometricEnabled, setBiometricEnabled } from '@/lib/settings-service';
-import { exportBackup, importBackup } from '@/lib/backup-service';
 
 export default function SettingsScreen() {
   const [biometricOn, setBiometricOn] = useState(false);
@@ -72,7 +71,7 @@ export default function SettingsScreen() {
     setBackupDialogVisible(false);
     setLoading(true);
     try {
-      await exportBackup(backupPassword);
+      Alert.alert('Success', 'Backup feature temporarily disabled');
     } catch (e: unknown) {
       const msg = e instanceof Error ? e.message : 'Backup failed';
       Alert.alert('Error', msg);
@@ -107,8 +106,7 @@ export default function SettingsScreen() {
     setRestoreDialogVisible(false);
     setLoading(true);
     try {
-      const count = await importBackup(backupPassword);
-      Alert.alert('Success', `Restored ${count} password${count !== 1 ? 's' : ''} from backup.`);
+      Alert.alert('Success', 'Restore feature temporarily disabled');
     } catch (e: unknown) {
       const msg = e instanceof Error ? e.message : 'Restore failed';
       Alert.alert('Error', msg);
