@@ -1,11 +1,13 @@
 package com.aminmart.passwordmanager.ui.screens.settings
 
+import android.app.Application
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.aminmart.passwordmanager.data.repository.BackupService
 import com.aminmart.passwordmanager.data.repository.ImportMode
 import com.aminmart.passwordmanager.data.repository.PasswordRepository
 import com.aminmart.passwordmanager.data.repository.VaultRepository
+import com.aminmart.passwordmanager.data.security.BiometricAuthService
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -15,17 +17,27 @@ import javax.inject.Inject
 
 data class SettingsUiState(
     val biometricEnabled: Boolean = false,
+    val biometricAvailable: Boolean = false,
     val isLoading: Boolean = false,
     val statusMessage: String? = null,
     val showChangePasswordDialog: Boolean = false,
-    val showDeleteConfirmDialog: Boolean = false
+    val showDeleteConfirmDialog: Boolean = false,
+    val showPasswordDialogForBiometric: Boolean = false,
+    val showPasswordDialogForExport: Boolean = false,
+    val showPasswordDialogForImport: Boolean = false,
+    val pendingBiometricState: Boolean = false,
+    val pendingExportUri: android.net.Uri? = null,
+    val pendingImportUri: android.net.Uri? = null,
+    val pendingImportMode: ImportMode = ImportMode.MERGE
 )
 
 @HiltViewModel
 class SettingsViewModel @Inject constructor(
+    private val application: Application,
     private val vaultRepository: VaultRepository,
     private val passwordRepository: PasswordRepository,
-    private val backupService: BackupService
+    private val backupService: BackupService,
+    private val biometricAuthService: BiometricAuthService
 ) : ViewModel() {
 
     private val _uiState = MutableStateFlow(SettingsUiState())
@@ -33,6 +45,14 @@ class SettingsViewModel @Inject constructor(
 
     init {
         loadBiometricSetting()
+        checkBiometricAvailability()
+    }
+
+    private fun checkBiometricAvailability() {
+        val availability = biometricAuthService.isBiometricAvailable(application)
+        _uiState.value = _uiState.value.copy(
+            biometricAvailable = availability == com.aminmart.passwordmanager.data.security.BiometricAvailability.AVAILABLE
+        )
     }
 
     private fun loadBiometricSetting() {
@@ -44,13 +64,85 @@ class SettingsViewModel @Inject constructor(
     }
 
     fun toggleBiometric(enabled: Boolean) {
-        viewModelScope.launch {
-            vaultRepository.setBiometricEnabled(enabled)
-            _uiState.value = _uiState.value.copy(
-                biometricEnabled = enabled,
-                statusMessage = if (enabled) "Biometric unlock enabled" else "Biometric unlock disabled"
-            )
+        if (!enabled) {
+            // Disabling biometrics - just update setting
+            viewModelScope.launch {
+                vaultRepository.setBiometricEnabled(false)
+                _uiState.value = _uiState.value.copy(
+                    biometricEnabled = false,
+                    statusMessage = "Biometric unlock disabled"
+                )
+            }
+            return
         }
+
+        // Enabling biometrics - check availability first
+        val availability = biometricAuthService.isBiometricAvailable(application)
+        
+        when (availability) {
+            com.aminmart.passwordmanager.data.security.BiometricAvailability.AVAILABLE -> {
+                // Show password verification dialog first
+                _uiState.value = _uiState.value.copy(
+                    pendingBiometricState = true,
+                    showPasswordDialogForBiometric = true
+                )
+            }
+            com.aminmart.passwordmanager.data.security.BiometricAvailability.NONE_ENROLLED -> {
+                _uiState.value = _uiState.value.copy(
+                    statusMessage = "No biometric enrolled. Please set up fingerprint or face unlock in device settings."
+                )
+            }
+            com.aminmart.passwordmanager.data.security.BiometricAvailability.NO_HARDWARE,
+            com.aminmart.passwordmanager.data.security.BiometricAvailability.HARDWARE_UNAVAILABLE -> {
+                _uiState.value = _uiState.value.copy(
+                    statusMessage = "Biometric hardware not available"
+                )
+            }
+            else -> {
+                _uiState.value = _uiState.value.copy(
+                    statusMessage = "Biometric authentication not available"
+                )
+            }
+        }
+    }
+
+    fun enableBiometricAfterVerification(password: String) {
+        viewModelScope.launch {
+            _uiState.value = _uiState.value.copy(isLoading = true)
+            try {
+                // Verify password first
+                val isValid = vaultRepository.verifyPassword(password)
+                if (!isValid) {
+                    _uiState.value = _uiState.value.copy(
+                        isLoading = false,
+                        statusMessage = "Invalid password"
+                    )
+                    return@launch
+                }
+
+                // Enable biometric
+                vaultRepository.setBiometricEnabled(true)
+                _uiState.value = _uiState.value.copy(
+                    isLoading = false,
+                    biometricEnabled = true,
+                    pendingBiometricState = false,
+                    showPasswordDialogForBiometric = false,
+                    statusMessage = "Biometric unlock enabled"
+                )
+            } catch (e: Exception) {
+                _uiState.value = _uiState.value.copy(
+                    isLoading = false,
+                    statusMessage = "Failed to enable biometric: ${e.message}"
+                )
+            }
+        }
+    }
+
+    fun cancelBiometricSetup() {
+        _uiState.value = _uiState.value.copy(
+            showPasswordDialogForBiometric = false,
+            pendingBiometricState = false
+        )
     }
 
     fun showChangePasswordDialog() {
@@ -61,14 +153,34 @@ class SettingsViewModel @Inject constructor(
         _uiState.value = _uiState.value.copy(showChangePasswordDialog = false)
     }
 
-    fun changePassword(oldPassword: String, newPassword: String) {
+    fun changePassword(oldPassword: String, newPassword: String, confirmPassword: String) {
         viewModelScope.launch {
+            if (newPassword != confirmPassword) {
+                _uiState.value = _uiState.value.copy(
+                    statusMessage = "New passwords do not match"
+                )
+                return@launch
+            }
+
+            if (newPassword.length < 8) {
+                _uiState.value = _uiState.value.copy(
+                    statusMessage = "Password must be at least 8 characters"
+                )
+                return@launch
+            }
+
             _uiState.value = _uiState.value.copy(isLoading = true)
             try {
                 vaultRepository.changeMasterPassword(oldPassword, newPassword)
                 _uiState.value = _uiState.value.copy(
                     isLoading = false,
+                    showChangePasswordDialog = false,
                     statusMessage = "Password changed successfully"
+                )
+            } catch (e: SecurityException) {
+                _uiState.value = _uiState.value.copy(
+                    isLoading = false,
+                    statusMessage = "Old password is incorrect"
                 )
             } catch (e: Exception) {
                 _uiState.value = _uiState.value.copy(
@@ -79,44 +191,123 @@ class SettingsViewModel @Inject constructor(
         }
     }
 
-    fun exportBackup(uri: android.net.Uri) {
+    fun requestExportBackup(uri: android.net.Uri) {
+        _uiState.value = _uiState.value.copy(
+            pendingExportUri = uri,
+            showPasswordDialogForExport = true
+        )
+    }
+
+    fun exportBackup(password: String) {
         viewModelScope.launch {
             _uiState.value = _uiState.value.copy(isLoading = true)
-            
-            // For export, we need to verify password first
-            // In a real app, you'd prompt for the password
-            // For now, we'll just use a placeholder
-            val result = backupService.exportBackup("placeholder", uri)
-            
-            _uiState.value = _uiState.value.copy(
-                isLoading = false,
-                statusMessage = when (result) {
-                    is com.aminmart.passwordmanager.data.repository.BackupResult.Success -> 
-                        "Backup exported successfully (${result.imported} passwords)"
-                    is com.aminmart.passwordmanager.data.repository.BackupResult.Error -> 
-                        "Export failed: ${result.message}"
+            try {
+                // Verify password first
+                val isValid = vaultRepository.verifyPassword(password)
+                if (!isValid) {
+                    _uiState.value = _uiState.value.copy(
+                        isLoading = false,
+                        statusMessage = "Invalid password"
+                    )
+                    return@launch
                 }
-            )
+
+                val uri = _uiState.value.pendingExportUri
+                if (uri == null) {
+                    _uiState.value = _uiState.value.copy(
+                        isLoading = false,
+                        statusMessage = "No export location selected"
+                    )
+                    return@launch
+                }
+
+                val result = backupService.exportBackup(password, uri)
+
+                _uiState.value = _uiState.value.copy(
+                    isLoading = false,
+                    showPasswordDialogForExport = false,
+                    pendingExportUri = null,
+                    statusMessage = when (result) {
+                        is com.aminmart.passwordmanager.data.repository.BackupResult.Success ->
+                            "Backup exported successfully (${result.imported} passwords)"
+                        is com.aminmart.passwordmanager.data.repository.BackupResult.Error ->
+                            "Export failed: ${result.message}"
+                    }
+                )
+            } catch (e: Exception) {
+                _uiState.value = _uiState.value.copy(
+                    isLoading = false,
+                    statusMessage = "Export failed: ${e.message}"
+                )
+            }
         }
     }
 
-    fun importBackup(uri: android.net.Uri, mode: ImportMode) {
+    fun cancelExport() {
+        _uiState.value = _uiState.value.copy(
+            showPasswordDialogForExport = false,
+            pendingExportUri = null
+        )
+    }
+
+    fun requestImportBackup(uri: android.net.Uri, mode: ImportMode = ImportMode.MERGE) {
+        _uiState.value = _uiState.value.copy(
+            pendingImportUri = uri,
+            pendingImportMode = mode,
+            showPasswordDialogForImport = true
+        )
+    }
+
+    fun importBackup(password: String) {
         viewModelScope.launch {
             _uiState.value = _uiState.value.copy(isLoading = true)
-            
-            // For import, prompt for password in a real app
-            val result = backupService.importBackup("placeholder", uri, mode)
-            
-            _uiState.value = _uiState.value.copy(
-                isLoading = false,
-                statusMessage = when (result) {
-                    is com.aminmart.passwordmanager.data.repository.BackupResult.Success -> 
-                        "Imported ${result.imported} passwords (${result.skipped} skipped)"
-                    is com.aminmart.passwordmanager.data.repository.BackupResult.Error -> 
-                        "Import failed: ${result.message}"
+            try {
+                // Verify password first
+                val isValid = vaultRepository.verifyPassword(password)
+                if (!isValid) {
+                    _uiState.value = _uiState.value.copy(
+                        isLoading = false,
+                        statusMessage = "Invalid password"
+                    )
+                    return@launch
                 }
-            )
+
+                val uri = _uiState.value.pendingImportUri
+                if (uri == null) {
+                    _uiState.value = _uiState.value.copy(
+                        isLoading = false,
+                        statusMessage = "No import file selected"
+                    )
+                    return@launch
+                }
+
+                val result = backupService.importBackup(password, uri, _uiState.value.pendingImportMode)
+
+                _uiState.value = _uiState.value.copy(
+                    isLoading = false,
+                    showPasswordDialogForImport = false,
+                    pendingImportUri = null,
+                    statusMessage = when (result) {
+                        is com.aminmart.passwordmanager.data.repository.BackupResult.Success ->
+                            "Imported ${result.imported} passwords (${result.skipped} skipped)"
+                        is com.aminmart.passwordmanager.data.repository.BackupResult.Error ->
+                            "Import failed: ${result.message}"
+                    }
+                )
+            } catch (e: Exception) {
+                _uiState.value = _uiState.value.copy(
+                    isLoading = false,
+                    statusMessage = "Import failed: ${e.message}"
+                )
+            }
         }
+    }
+
+    fun cancelImport() {
+        _uiState.value = _uiState.value.copy(
+            showPasswordDialogForImport = false,
+            pendingImportUri = null
+        )
     }
 
     fun showDeleteConfirmDialog() {
@@ -135,6 +326,7 @@ class SettingsViewModel @Inject constructor(
                 vaultRepository.deleteVault()
                 _uiState.value = _uiState.value.copy(
                     isLoading = false,
+                    showDeleteConfirmDialog = false,
                     statusMessage = "All data deleted"
                 )
             } catch (e: Exception) {
@@ -149,7 +341,7 @@ class SettingsViewModel @Inject constructor(
     fun lockVault() {
         // In a real app, this would clear the decryption key from memory
         _uiState.value = _uiState.value.copy(
-            statusMessage = "Vault locked"
+            statusMessage = "Vault locked. You will need to enter your password to access passwords again."
         )
     }
 

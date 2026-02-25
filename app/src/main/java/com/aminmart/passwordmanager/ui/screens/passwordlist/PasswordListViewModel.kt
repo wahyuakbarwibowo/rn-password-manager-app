@@ -13,7 +13,8 @@ data class PasswordListUiState(
     val passwords: List<PasswordEntry> = emptyList(),
     val isLoading: Boolean = true,
     val searchQuery: String = "",
-    val errorMessage: String? = null
+    val errorMessage: String? = null,
+    val refreshTrigger: Int = 0
 )
 
 @HiltViewModel
@@ -31,11 +32,11 @@ class PasswordListViewModel @Inject constructor(
         loadPasswords()
     }
 
-    private fun loadPasswords() {
+    fun loadPasswords() {
         loadJob?.cancel()
         loadJob = viewModelScope.launch {
             _uiState.value = _uiState.value.copy(isLoading = true)
-            
+
             combine(
                 passwordRepository.getAllPasswords(),
                 _searchQuery
@@ -68,7 +69,10 @@ class PasswordListViewModel @Inject constructor(
     }
 
     fun refresh() {
-        loadPasswords()
+        // Increment refresh trigger to force reload
+        _uiState.value = _uiState.value.copy(
+            refreshTrigger = _uiState.value.refreshTrigger + 1
+        )
     }
 
     fun clearError() {
