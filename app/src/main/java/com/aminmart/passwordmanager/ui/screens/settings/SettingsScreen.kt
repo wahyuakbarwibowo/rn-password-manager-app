@@ -8,6 +8,7 @@ import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.*
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
@@ -29,26 +30,33 @@ fun SettingsScreen(
     val uiState by viewModel.uiState.collectAsState()
     val context = LocalContext.current
     val activity = context as? Activity
-    
+
     val exportLauncher = rememberLauncherForActivityResult(
         contract = ActivityResultContracts.CreateDocument("application/json")
     ) { uri ->
-        uri?.let { viewModel.exportBackup(it) }
+        uri?.let { viewModel.requestExportBackup(it) }
     }
-    
+
     val importLauncher = rememberLauncherForActivityResult(
         contract = ActivityResultContracts.GetContent()
     ) { uri ->
-        uri?.let { viewModel.importBackup(it, ImportMode.MERGE) }
+        uri?.let { viewModel.requestImportBackup(it, ImportMode.MERGE) }
     }
-    
+
+    // Biometric authentication launcher
+    val biometricLauncher = rememberLauncherForActivityResult(
+        contract = ActivityResultContracts.StartActivityForResult()
+    ) { result ->
+        // Handle biometric authentication result if needed
+    }
+
     Scaffold(
         topBar = {
             TopAppBar(
                 title = { Text("Settings") },
                 navigationIcon = {
                     IconButton(onClick = onNavigateBack) {
-                        Icon(Icons.Default.ArrowBack, contentDescription = "Back")
+                        Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "Back")
                     }
                 }
             )
@@ -66,22 +74,27 @@ fun SettingsScreen(
                 SettingsSwitchItem(
                     icon = Icons.Default.Fingerprint,
                     title = "Biometric Unlock",
-                    subtitle = "Use fingerprint or face to unlock",
-                    checked = uiState.biometricEnabled,
+                    subtitle = if (uiState.biometricAvailable) {
+                        "Use fingerprint or face to unlock"
+                    } else {
+                        "Not available - check device settings"
+                    },
+                    checked = uiState.biometricEnabled && uiState.biometricAvailable,
+                    enabled = uiState.biometricAvailable,
                     onCheckedChange = viewModel::toggleBiometric
                 )
-                
-                Divider()
-                
+
+                HorizontalDivider()
+
                 // Change master password
                 SettingsNavItem(
                     icon = Icons.Default.LockReset,
                     title = "Change Master Password",
                     onClick = { viewModel.showChangePasswordDialog() }
                 )
-                
-                Divider()
-                
+
+                HorizontalDivider()
+
                 // Export backup
                 SettingsNavItem(
                     icon = Icons.Default.Upload,
@@ -92,9 +105,9 @@ fun SettingsScreen(
                         exportLauncher.launch(fileName)
                     }
                 )
-                
-                Divider()
-                
+
+                HorizontalDivider()
+
                 // Import backup
                 SettingsNavItem(
                     icon = Icons.Default.Download,
@@ -105,7 +118,7 @@ fun SettingsScreen(
                     }
                 )
             }
-            
+
             // App section
             SettingsSection(title = "App") {
                 SettingsNavItem(
@@ -114,9 +127,9 @@ fun SettingsScreen(
                     subtitle = "Version 1.0.0",
                     onClick = { }
                 )
-                
-                Divider()
-                
+
+                HorizontalDivider()
+
                 // Lock now
                 SettingsNavItem(
                     icon = Icons.Default.Lock,
@@ -124,7 +137,7 @@ fun SettingsScreen(
                     onClick = { viewModel.lockVault() }
                 )
             }
-            
+
             // Danger zone
             SettingsSection(title = "Danger Zone") {
                 SettingsNavItem(
@@ -134,21 +147,51 @@ fun SettingsScreen(
                     onClick = { viewModel.showDeleteConfirmDialog() }
                 )
             }
-            
+
             Spacer(modifier = Modifier.height(16.dp))
         }
     }
-    
+
     // Change password dialog
     if (uiState.showChangePasswordDialog) {
         ChangePasswordDialog(
             onDismiss = viewModel::hideChangePasswordDialog,
-            onChangePassword = { oldPassword, newPassword ->
-                viewModel.changePassword(oldPassword, newPassword)
+            onChangePassword = { oldPassword, newPassword, confirmPassword ->
+                viewModel.changePassword(oldPassword, newPassword, confirmPassword)
             }
         )
     }
-    
+
+    // Password verification dialog for biometric
+    if (uiState.showPasswordDialogForBiometric) {
+        PasswordVerificationDialog(
+            title = "Verify Password",
+            description = "Enter your master password to enable biometric unlock",
+            onDismiss = viewModel::cancelBiometricSetup,
+            onVerify = viewModel::enableBiometricAfterVerification
+        )
+    }
+
+    // Password verification dialog for export
+    if (uiState.showPasswordDialogForExport) {
+        PasswordVerificationDialog(
+            title = "Verify Password",
+            description = "Enter your master password to export backup",
+            onDismiss = viewModel::cancelExport,
+            onVerify = viewModel::exportBackup
+        )
+    }
+
+    // Password verification dialog for import
+    if (uiState.showPasswordDialogForImport) {
+        PasswordVerificationDialog(
+            title = "Verify Password",
+            description = "Enter your master password to import backup",
+            onDismiss = viewModel::cancelImport,
+            onVerify = viewModel::importBackup
+        )
+    }
+
     // Delete confirmation dialog
     if (uiState.showDeleteConfirmDialog) {
         AlertDialog(
@@ -180,7 +223,7 @@ fun SettingsScreen(
             }
         )
     }
-    
+
     // Status messages
     uiState.statusMessage?.let { message ->
         Snackbar(
@@ -263,6 +306,7 @@ private fun SettingsSwitchItem(
     title: String,
     subtitle: String? = null,
     checked: Boolean,
+    enabled: Boolean = true,
     onCheckedChange: (Boolean) -> Unit
 ) {
     Row(
@@ -275,39 +319,84 @@ private fun SettingsSwitchItem(
         Icon(
             imageVector = icon,
             contentDescription = null,
-            tint = MaterialTheme.colorScheme.onSurface
+            tint = if (enabled) MaterialTheme.colorScheme.onSurface else MaterialTheme.colorScheme.onSurface.copy(alpha = 0.5f)
         )
-        
+
         Column(modifier = Modifier.weight(1f)) {
             Text(
                 text = title,
-                style = MaterialTheme.typography.bodyLarge
+                style = MaterialTheme.typography.bodyLarge,
+                color = if (enabled) MaterialTheme.colorScheme.onSurface else MaterialTheme.colorScheme.onSurface.copy(alpha = 0.5f)
             )
             if (subtitle != null) {
                 Text(
                     text = subtitle,
                     style = MaterialTheme.typography.bodySmall,
-                    color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.7f)
+                    color = if (enabled) MaterialTheme.colorScheme.onSurface.copy(alpha = 0.7f) else MaterialTheme.colorScheme.onSurface.copy(alpha = 0.3f)
                 )
             }
         }
-        
+
         Switch(
             checked = checked,
-            onCheckedChange = onCheckedChange
+            onCheckedChange = if (enabled) onCheckedChange else null,
+            enabled = enabled
         )
     }
 }
 
 @Composable
+private fun PasswordVerificationDialog(
+    title: String,
+    description: String,
+    onDismiss: () -> Unit,
+    onVerify: (String) -> Unit
+) {
+    var password by remember { mutableStateOf("") }
+
+    AlertDialog(
+        onDismissRequest = onDismiss,
+        title = { Text(title) },
+        text = {
+            Column(verticalArrangement = Arrangement.spacedBy(16.dp)) {
+                Text(description)
+                OutlinedTextField(
+                    value = password,
+                    onValueChange = { password = it },
+                    label = { Text("Master Password") },
+                    singleLine = true,
+                    modifier = Modifier.fillMaxWidth()
+                )
+            }
+        },
+        confirmButton = {
+            Button(
+                onClick = {
+                    if (password.isNotEmpty()) {
+                        onVerify(password)
+                    }
+                }
+            ) {
+                Text("Verify")
+            }
+        },
+        dismissButton = {
+            TextButton(onClick = onDismiss) {
+                Text("Cancel")
+            }
+        }
+    )
+}
+
+@Composable
 private fun ChangePasswordDialog(
     onDismiss: () -> Unit,
-    onChangePassword: (String, String) -> Unit
+    onChangePassword: (String, String, String) -> Unit
 ) {
     var oldPassword by remember { mutableStateOf("") }
     var newPassword by remember { mutableStateOf("") }
     var confirmPassword by remember { mutableStateOf("") }
-    
+
     AlertDialog(
         onDismissRequest = onDismiss,
         title = { Text("Change Master Password") },
@@ -317,29 +406,29 @@ private fun ChangePasswordDialog(
                     value = oldPassword,
                     onValueChange = { oldPassword = it },
                     label = { Text("Old Password") },
-                    singleLine = true
+                    singleLine = true,
+                    modifier = Modifier.fillMaxWidth()
                 )
                 OutlinedTextField(
                     value = newPassword,
                     onValueChange = { newPassword = it },
                     label = { Text("New Password") },
-                    singleLine = true
+                    singleLine = true,
+                    modifier = Modifier.fillMaxWidth()
                 )
                 OutlinedTextField(
                     value = confirmPassword,
                     onValueChange = { confirmPassword = it },
                     label = { Text("Confirm New Password") },
-                    singleLine = true
+                    singleLine = true,
+                    modifier = Modifier.fillMaxWidth()
                 )
             }
         },
         confirmButton = {
             Button(
                 onClick = {
-                    if (newPassword == confirmPassword) {
-                        onChangePassword(oldPassword, newPassword)
-                        onDismiss()
-                    }
+                    onChangePassword(oldPassword, newPassword, confirmPassword)
                 }
             ) {
                 Text("Change")

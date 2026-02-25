@@ -6,6 +6,7 @@ import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.*
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
@@ -40,7 +41,7 @@ fun AddEditPasswordScreen(
                 title = { Text(if (uiState.isEditMode) "Edit Password" else "Add Password") },
                 navigationIcon = {
                     IconButton(onClick = onNavigateBack) {
-                        Icon(Icons.Default.ArrowBack, contentDescription = "Back")
+                        Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "Back")
                     }
                 }
             )
@@ -123,9 +124,9 @@ fun AddEditPasswordScreen(
                     },
                     modifier = Modifier
                         .fillMaxWidth()
-                        .menuAnchor()
+                        .menuAnchor(type = MenuAnchorType.PrimaryNotEditable)
                 )
-                
+
                 ExposedDropdownMenu(
                     expanded = categoryExpanded,
                     onDismissRequest = { categoryExpanded = false }
@@ -192,26 +193,28 @@ fun AddEditPasswordScreen(
 @Composable
 private fun PasswordStrengthIndicator(strength: com.aminmart.passwordmanager.data.security.PasswordStrength) {
     val (color, label) = when (strength) {
-        com.aminmart.passwordmanager.data.security.PasswordStrength.WEAK -> 
+        com.aminmart.passwordmanager.data.security.PasswordStrength.WEAK ->
             MaterialTheme.colorScheme.error to "Weak"
-        com.aminmart.passwordmanager.data.security.PasswordStrength.FAIR -> 
+        com.aminmart.passwordmanager.data.security.PasswordStrength.FAIR ->
             MaterialTheme.colorScheme.error to "Fair"
-        com.aminmart.passwordmanager.data.security.PasswordStrength.GOOD -> 
+        com.aminmart.passwordmanager.data.security.PasswordStrength.GOOD ->
             MaterialTheme.colorScheme.primary to "Good"
-        com.aminmart.passwordmanager.data.security.PasswordStrength.STRONG -> 
+        com.aminmart.passwordmanager.data.security.PasswordStrength.STRONG ->
             MaterialTheme.colorScheme.primary to "Strong"
-        com.aminmart.passwordmanager.data.security.PasswordStrength.VERY_STRONG -> 
+        com.aminmart.passwordmanager.data.security.PasswordStrength.VERY_STRONG ->
             MaterialTheme.colorScheme.primary to "Very Strong"
     }
-    
+
     Column {
         LinearProgressIndicator(
-            progress = when (strength) {
-                com.aminmart.passwordmanager.data.security.PasswordStrength.WEAK -> 0.2f
-                com.aminmart.passwordmanager.data.security.PasswordStrength.FAIR -> 0.4f
-                com.aminmart.passwordmanager.data.security.PasswordStrength.GOOD -> 0.6f
-                com.aminmart.passwordmanager.data.security.PasswordStrength.STRONG -> 0.8f
-                com.aminmart.passwordmanager.data.security.PasswordStrength.VERY_STRONG -> 1.0f
+            progress = {
+                when (strength) {
+                    com.aminmart.passwordmanager.data.security.PasswordStrength.WEAK -> 0.2f
+                    com.aminmart.passwordmanager.data.security.PasswordStrength.FAIR -> 0.4f
+                    com.aminmart.passwordmanager.data.security.PasswordStrength.GOOD -> 0.6f
+                    com.aminmart.passwordmanager.data.security.PasswordStrength.STRONG -> 0.8f
+                    com.aminmart.passwordmanager.data.security.PasswordStrength.VERY_STRONG -> 1.0f
+                }
             },
             modifier = Modifier.fillMaxWidth(),
             color = color

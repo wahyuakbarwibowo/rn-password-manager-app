@@ -30,7 +30,7 @@ fun AppNavigation(
                 }
             )
         }
-        
+
         composable(Screen.PasswordList.route) {
             PasswordListScreen(
                 onNavigateToDetail = { passwordId ->
@@ -44,7 +44,7 @@ fun AppNavigation(
                 }
             )
         }
-        
+
         composable(
             route = Screen.PasswordDetail.route,
             arguments = listOf(
@@ -58,14 +58,16 @@ fun AppNavigation(
                 onNavigateToEdit = { navController.navigate(Screen.EditPassword.createRoute(passwordId)) }
             )
         }
-        
+
         composable(Screen.AddPassword.route) {
             AddEditPasswordScreen(
                 passwordId = null,
-                onNavigateBack = { navController.popBackStack() }
+                onNavigateBack = { 
+                    navController.popBackStack()
+                }
             )
         }
-        
+
         composable(
             route = Screen.EditPassword.route,
             arguments = listOf(
@@ -75,10 +77,12 @@ fun AppNavigation(
             val passwordId = backStackEntry.arguments?.getLong("passwordId") ?: return@composable
             AddEditPasswordScreen(
                 passwordId = passwordId,
-                onNavigateBack = { navController.popBackStack() }
+                onNavigateBack = { 
+                    navController.popBackStack()
+                }
             )
         }
-        
+
         composable(Screen.Settings.route) {
             SettingsScreen(
                 onNavigateBack = { navController.popBackStack() }
