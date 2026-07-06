@@ -80,8 +80,7 @@ fun AddEditPasswordScreen(
                 onValueChange = viewModel::onPasswordChange,
                 label = "Password",
                 placeholder = "Enter password",
-                isError = uiState.errorMessage != null && uiState.password.isBlank(),
-                keyboardActions = KeyboardActions(onNext = { viewModel.generatePassword() })
+                isError = uiState.errorMessage != null && uiState.password.isBlank()
             )
             
             // Password generator button
@@ -174,20 +173,6 @@ fun AddEditPasswordScreen(
         }
     }
     
-    // Password generator dialog
-    if (uiState.showPasswordGenerator) {
-        PasswordGeneratorDialog(
-            passwordLength = uiState.passwordLength,
-            onLengthChange = viewModel::setPasswordLength,
-            onGenerate = {
-                viewModel.generatePassword()
-            },
-            onUsePassword = {
-                viewModel.generatePassword()
-            },
-            onDismiss = { }
-        )
-    }
 }
 
 @Composable
@@ -225,41 +210,6 @@ private fun PasswordStrengthIndicator(strength: com.aminmart.passwordmanager.dat
             color = color
         )
     }
-}
-
-@Composable
-private fun PasswordGeneratorDialog(
-    passwordLength: Int,
-    onLengthChange: (Int) -> Unit,
-    onGenerate: () -> Unit,
-    onUsePassword: () -> Unit,
-    onDismiss: () -> Unit
-) {
-    AlertDialog(
-        onDismissRequest = onDismiss,
-        title = { Text("Generate Password") },
-        text = {
-            Column {
-                Text("Password Length: $passwordLength")
-                Slider(
-                    value = passwordLength.toFloat(),
-                    onValueChange = { onLengthChange(it.toInt()) },
-                    valueRange = 8f..64f,
-                    steps = 56
-                )
-            }
-        },
-        confirmButton = {
-            Button(onClick = { onUsePassword(); onDismiss() }) {
-                Text("Use Password")
-            }
-        },
-        dismissButton = {
-            TextButton(onClick = onDismiss) {
-                Text("Cancel")
-            }
-        }
-    )
 }
 
 private val PasswordCategory.displayName: String

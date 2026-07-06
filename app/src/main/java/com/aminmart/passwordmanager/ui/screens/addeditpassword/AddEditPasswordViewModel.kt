@@ -30,8 +30,6 @@ data class AddEditPasswordUiState(
     val saveSuccess: Boolean = false,
     
     // Password generator
-    val showPasswordGenerator: Boolean = false,
-    val generatedPassword: String = "",
     val passwordLength: Int = 16,
     val passwordStrength: PasswordStrength? = null
 )
@@ -118,16 +116,11 @@ class AddEditPasswordViewModel @Inject constructor(
         val length = _uiState.value.passwordLength
         val generated = passwordGeneratorService.generatePassword(length = length)
         _uiState.value = _uiState.value.copy(
-            generatedPassword = generated,
             password = generated,
             passwordStrength = passwordGeneratorService.getPasswordStrength(
                 passwordGeneratorService.calculateEntropy(generated)
             )
         )
-    }
-
-    fun setPasswordLength(length: Int) {
-        _uiState.value = _uiState.value.copy(passwordLength = length)
     }
 
     fun savePassword() {

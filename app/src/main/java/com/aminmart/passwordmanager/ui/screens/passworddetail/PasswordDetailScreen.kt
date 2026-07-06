@@ -1,8 +1,5 @@
 package com.aminmart.passwordmanager.ui.screens.passworddetail
 
-import android.content.ClipData
-import android.content.ClipboardManager
-import android.content.Context
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
@@ -18,6 +15,7 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.aminmart.passwordmanager.ui.components.PasswordCategoryBadge
+import com.aminmart.passwordmanager.ui.components.copyToClipboard
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -197,6 +195,8 @@ private fun InfoRow(
     isSensitive: Boolean = false,
     onCopy: () -> Unit
 ) {
+    var revealed by remember { mutableStateOf(false) }
+
     Card(
         modifier = Modifier.fillMaxWidth()
     ) {
@@ -215,30 +215,26 @@ private fun InfoRow(
                 )
                 Spacer(modifier = Modifier.height(4.dp))
                 Text(
-                    text = if (isSensitive) "•".repeat(value.length) else value,
+                    text = if (isSensitive && !revealed) "•".repeat(value.length) else value,
                     style = MaterialTheme.typography.bodyLarge,
                     maxLines = 1,
                     overflow = TextOverflow.Ellipsis
                 )
             }
-            
+
+            if (isSensitive) {
+                IconButton(onClick = { revealed = !revealed }) {
+                    Icon(
+                        imageVector = if (revealed) Icons.Default.VisibilityOff else Icons.Default.Visibility,
+                        contentDescription = if (revealed) "Hide" else "Show"
+                    )
+                }
+            }
             IconButton(onClick = onCopy) {
                 Icon(Icons.Default.ContentCopy, contentDescription = "Copy")
             }
         }
     }
-}
-
-private fun copyToClipboard(context: Context, text: String, label: String, isSensitive: Boolean = false) {
-    val clipboard = context.getSystemService(Context.CLIPBOARD_SERVICE) as ClipboardManager
-    val clip = ClipData.newPlainText(label, text)
-    if (isSensitive) {
-        // Hides the value from the clipboard preview / editor suggestions (Android 13+)
-        clip.description.extras = android.os.PersistableBundle().apply {
-            putBoolean(android.content.ClipDescription.EXTRA_IS_SENSITIVE, true)
-        }
-    }
-    clipboard.setPrimaryClip(clip)
 }
 
 private fun formatTimestamp(timestamp: Long): String {

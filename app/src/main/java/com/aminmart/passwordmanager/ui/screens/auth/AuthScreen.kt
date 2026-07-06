@@ -90,6 +90,7 @@ private fun AuthScreenContent(
                     imeAction = if (uiState.needsSetup) ImeAction.Next else ImeAction.Done,
                     keyboardType = KeyboardType.Password
                 ),
+                keyboardActions = KeyboardActions(onDone = { onAuthenticate() }),
                 singleLine = true,
                 modifier = Modifier.fillMaxWidth(),
                 isError = uiState.errorMessage != null
@@ -105,6 +106,7 @@ private fun AuthScreenContent(
                         imeAction = ImeAction.Done,
                         keyboardType = KeyboardType.Password
                     ),
+                    keyboardActions = KeyboardActions(onDone = { onAuthenticate() }),
                     singleLine = true,
                     modifier = Modifier.fillMaxWidth(),
                     isError = uiState.errorMessage != null

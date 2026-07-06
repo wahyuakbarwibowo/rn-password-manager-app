@@ -10,11 +10,13 @@ import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.aminmart.passwordmanager.domain.model.PasswordEntry
 import com.aminmart.passwordmanager.ui.components.PasswordCategoryBadge
+import com.aminmart.passwordmanager.ui.components.copyToClipboard
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -99,6 +101,7 @@ fun PasswordListScreen(
                 }
             } else if (uiState.passwords.isEmpty()) {
                 EmptyPasswordList(
+                    isSearching = uiState.searchQuery.isNotEmpty(),
                     modifier = Modifier.fillMaxSize()
                 )
             } else {
@@ -119,7 +122,7 @@ fun PasswordListScreen(
 }
 
 @Composable
-private fun EmptyPasswordList(modifier: Modifier = Modifier) {
+private fun EmptyPasswordList(isSearching: Boolean, modifier: Modifier = Modifier) {
     Box(
         modifier = modifier,
         contentAlignment = Alignment.Center
@@ -129,16 +132,20 @@ private fun EmptyPasswordList(modifier: Modifier = Modifier) {
             verticalArrangement = Arrangement.spacedBy(16.dp)
         ) {
             Text(
-                text = "🔒",
+                text = if (isSearching) "🔍" else "🔒",
                 style = MaterialTheme.typography.displayLarge
             )
             Text(
-                text = "No passwords yet",
+                text = if (isSearching) "No results found" else "No passwords yet",
                 style = MaterialTheme.typography.titleMedium,
                 color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.7f)
             )
             Text(
-                text = "Tap the + button to add your first password",
+                text = if (isSearching) {
+                    "Try a different search term"
+                } else {
+                    "Tap the + button to add your first password"
+                },
                 style = MaterialTheme.typography.bodyMedium,
                 color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.5f)
             )
@@ -151,6 +158,8 @@ private fun PasswordListItem(
     password: PasswordEntry,
     onClick: () -> Unit
 ) {
+    val context = LocalContext.current
+
     Card(
         modifier = Modifier
             .fillMaxWidth()
@@ -200,6 +209,19 @@ private fun PasswordListItem(
             
             // Category badge
             PasswordCategoryBadge(category = password.category)
+
+            // Quick copy — the most common action, without opening the detail screen
+            IconButton(
+                onClick = {
+                    copyToClipboard(context, password.password, "Password", isSensitive = true)
+                }
+            ) {
+                Icon(
+                    imageVector = Icons.Default.ContentCopy,
+                    contentDescription = "Copy password",
+                    tint = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.7f)
+                )
+            }
         }
     }
 }
