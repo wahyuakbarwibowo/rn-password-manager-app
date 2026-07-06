@@ -7,10 +7,12 @@ import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.unit.dp
+import androidx.fragment.app.FragmentActivity
 import androidx.hilt.navigation.compose.hiltViewModel
 
 @Composable
@@ -19,13 +21,14 @@ fun AuthScreen(
     onAuthSuccess: () -> Unit
 ) {
     val uiState by viewModel.uiState.collectAsState()
-    
+    val activity = LocalContext.current as? FragmentActivity
+
     AuthScreenContent(
         uiState = uiState,
         onMasterPasswordChange = viewModel::onMasterPasswordChange,
         onConfirmPasswordChange = viewModel::onConfirmPasswordChange,
         onAuthenticate = viewModel::authenticate,
-        onBiometricAuth = viewModel::authenticateWithBiometric,
+        onBiometricAuth = { activity?.let(viewModel::authenticateWithBiometric) },
         onAuthSuccess = onAuthSuccess
     )
 }
@@ -39,20 +42,12 @@ private fun AuthScreenContent(
     onBiometricAuth: () -> Unit,
     onAuthSuccess: () -> Unit
 ) {
-    var passwordDialogOpen by remember { mutableStateOf(false) }
-    
     LaunchedEffect(uiState.isAuthenticated) {
         if (uiState.isAuthenticated) {
             onAuthSuccess()
         }
     }
-    
-    LaunchedEffect(uiState.showBiometricPrompt) {
-        if (uiState.showBiometricPrompt && uiState.biometricAvailable) {
-            onBiometricAuth()
-        }
-    }
-    
+
     Box(
         modifier = Modifier
             .fillMaxSize()
@@ -145,33 +140,10 @@ private fun AuthScreenContent(
             }
             
             if (uiState.biometricAvailable && !uiState.needsSetup) {
-                TextButton(
-                    onClick = { passwordDialogOpen = true }
-                ) {
+                TextButton(onClick = onBiometricAuth) {
                     Text("Use Biometric Instead")
                 }
             }
         }
-    }
-    
-    if (passwordDialogOpen) {
-        AlertDialog(
-            onDismissRequest = { passwordDialogOpen = false },
-            title = { Text("Authentication") },
-            text = { Text("Choose authentication method") },
-            confirmButton = {
-                TextButton(onClick = {
-                    passwordDialogOpen = false
-                    onBiometricAuth()
-                }) {
-                    Text("Biometric")
-                }
-            },
-            dismissButton = {
-                TextButton(onClick = { passwordDialogOpen = false }) {
-                    Text("Cancel")
-                }
-            }
-        )
     }
 }

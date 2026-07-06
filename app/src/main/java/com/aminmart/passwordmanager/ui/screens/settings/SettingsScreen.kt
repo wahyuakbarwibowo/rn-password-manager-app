@@ -25,11 +25,13 @@ import java.io.File
 @Composable
 fun SettingsScreen(
     viewModel: SettingsViewModel = hiltViewModel(),
-    onNavigateBack: () -> Unit
+    onNavigateBack: () -> Unit,
+    onLockVault: () -> Unit
 ) {
     val uiState by viewModel.uiState.collectAsState()
     val context = LocalContext.current
     val activity = context as? Activity
+    var showAutoLockDialog by remember { mutableStateOf(false) }
 
     val exportLauncher = rememberLauncherForActivityResult(
         contract = ActivityResultContracts.CreateDocument("application/json")
@@ -86,6 +88,16 @@ fun SettingsScreen(
 
                 HorizontalDivider()
 
+                // Auto-lock timeout
+                SettingsNavItem(
+                    icon = Icons.Default.Timer,
+                    title = "Auto-Lock",
+                    subtitle = "Lock after ${autoLockLabel(uiState.autoLockTimeoutMs)} in background",
+                    onClick = { showAutoLockDialog = true }
+                )
+
+                HorizontalDivider()
+
                 // Change master password
                 SettingsNavItem(
                     icon = Icons.Default.LockReset,
@@ -134,7 +146,8 @@ fun SettingsScreen(
                 SettingsNavItem(
                     icon = Icons.Default.Lock,
                     title = "Lock Vault",
-                    onClick = { viewModel.lockVault() }
+                    subtitle = "Require master password to re-enter",
+                    onClick = onLockVault
                 )
             }
 
@@ -150,6 +163,40 @@ fun SettingsScreen(
 
             Spacer(modifier = Modifier.height(16.dp))
         }
+    }
+
+    // Auto-lock timeout picker
+    if (showAutoLockDialog) {
+        AlertDialog(
+            onDismissRequest = { showAutoLockDialog = false },
+            title = { Text("Auto-Lock Timeout") },
+            text = {
+                Column {
+                    AUTO_LOCK_OPTIONS.forEach { timeoutMs ->
+                        Row(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .padding(vertical = 4.dp),
+                            verticalAlignment = Alignment.CenterVertically
+                        ) {
+                            RadioButton(
+                                selected = uiState.autoLockTimeoutMs == timeoutMs,
+                                onClick = {
+                                    viewModel.setAutoLockTimeout(timeoutMs)
+                                    showAutoLockDialog = false
+                                }
+                            )
+                            Text(autoLockLabel(timeoutMs))
+                        }
+                    }
+                }
+            },
+            confirmButton = {
+                TextButton(onClick = { showAutoLockDialog = false }) {
+                    Text("Cancel")
+                }
+            }
+        )
     }
 
     // Change password dialog
@@ -240,6 +287,15 @@ fun SettingsScreen(
             Text(message)
         }
     }
+}
+
+private val AUTO_LOCK_OPTIONS = listOf(30_000L, 60_000L, 300_000L)
+
+private fun autoLockLabel(timeoutMs: Long): String = when (timeoutMs) {
+    30_000L -> "30 seconds"
+    60_000L -> "1 minute"
+    300_000L -> "5 minutes"
+    else -> "${timeoutMs / 1000} seconds"
 }
 
 @Composable

@@ -23,8 +23,7 @@ data class AuthUiState(
     val isLoading: Boolean = false,
     val errorMessage: String? = null,
     val isAuthenticated: Boolean = false,
-    val biometricAvailable: Boolean = false,
-    val showBiometricPrompt: Boolean = false
+    val biometricAvailable: Boolean = false
 )
 
 @HiltViewModel
@@ -127,11 +126,7 @@ class AuthViewModel @Inject constructor(
         }
     }
 
-    fun authenticateWithBiometric() {
-        val activity = application as? FragmentActivity ?: return
-        
-        _uiState.value = _uiState.value.copy(showBiometricPrompt = true)
-        
+    fun authenticateWithBiometric(activity: FragmentActivity) {
         biometricAuthService.authenticate(
             activity = activity,
             title = "Unlock Password Manager",
@@ -140,7 +135,6 @@ class AuthViewModel @Inject constructor(
             onAuthenticationSuccess = {
                 viewModelScope.launch {
                     _uiState.value = _uiState.value.copy(
-                        showBiometricPrompt = false,
                         isAuthenticated = true
                     )
                 }
@@ -148,7 +142,6 @@ class AuthViewModel @Inject constructor(
             onAuthenticationError = { errorCode, errString ->
                 viewModelScope.launch {
                     _uiState.value = _uiState.value.copy(
-                        showBiometricPrompt = false,
                         errorMessage = if (errorCode == BiometricPrompt.ERROR_NEGATIVE_BUTTON) {
                             null // User chose to use password instead
                         } else {

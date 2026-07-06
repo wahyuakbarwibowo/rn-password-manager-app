@@ -128,7 +128,7 @@ fun PasswordDetailScreen(
                     value = password.password,
                     isSensitive = true,
                     onCopy = {
-                        copyToClipboard(context, password.password, "Password")
+                        copyToClipboard(context, password.password, "Password", isSensitive = true)
                     }
                 )
                 
@@ -229,9 +229,15 @@ private fun InfoRow(
     }
 }
 
-private fun copyToClipboard(context: Context, text: String, label: String) {
+private fun copyToClipboard(context: Context, text: String, label: String, isSensitive: Boolean = false) {
     val clipboard = context.getSystemService(Context.CLIPBOARD_SERVICE) as ClipboardManager
     val clip = ClipData.newPlainText(label, text)
+    if (isSensitive) {
+        // Hides the value from the clipboard preview / editor suggestions (Android 13+)
+        clip.description.extras = android.os.PersistableBundle().apply {
+            putBoolean(android.content.ClipDescription.EXTRA_IS_SENSITIVE, true)
+        }
+    }
     clipboard.setPrimaryClip(clip)
 }
 

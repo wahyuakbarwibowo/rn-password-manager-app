@@ -18,6 +18,7 @@ import javax.inject.Inject
 data class SettingsUiState(
     val biometricEnabled: Boolean = false,
     val biometricAvailable: Boolean = false,
+    val autoLockTimeoutMs: Long = VaultRepository.DEFAULT_AUTO_LOCK_TIMEOUT_MS,
     val isLoading: Boolean = false,
     val statusMessage: String? = null,
     val showChangePasswordDialog: Boolean = false,
@@ -46,6 +47,22 @@ class SettingsViewModel @Inject constructor(
     init {
         loadBiometricSetting()
         checkBiometricAvailability()
+        loadAutoLockTimeout()
+    }
+
+    private fun loadAutoLockTimeout() {
+        viewModelScope.launch {
+            _uiState.value = _uiState.value.copy(
+                autoLockTimeoutMs = vaultRepository.getAutoLockTimeoutMs()
+            )
+        }
+    }
+
+    fun setAutoLockTimeout(timeoutMs: Long) {
+        viewModelScope.launch {
+            vaultRepository.setAutoLockTimeoutMs(timeoutMs)
+            _uiState.value = _uiState.value.copy(autoLockTimeoutMs = timeoutMs)
+        }
     }
 
     private fun checkBiometricAvailability() {
@@ -336,13 +353,6 @@ class SettingsViewModel @Inject constructor(
                 )
             }
         }
-    }
-
-    fun lockVault() {
-        // In a real app, this would clear the decryption key from memory
-        _uiState.value = _uiState.value.copy(
-            statusMessage = "Vault locked. You will need to enter your password to access passwords again."
-        )
     }
 
     fun clearStatusMessage() {

@@ -128,6 +128,23 @@ class VaultRepository @Inject constructor(
     }
 
     /**
+     * Auto-lock timeout: how long the app may sit in background before requiring re-auth.
+     */
+    suspend fun getAutoLockTimeoutMs(): Long {
+        return database.getSetting(SettingsKeys.AUTO_LOCK_TIMEOUT_MS)?.value?.toLongOrNull()
+            ?: DEFAULT_AUTO_LOCK_TIMEOUT_MS
+    }
+
+    suspend fun setAutoLockTimeoutMs(timeoutMs: Long) {
+        database.saveSetting(
+            SettingsEntity(
+                key = SettingsKeys.AUTO_LOCK_TIMEOUT_MS,
+                value = timeoutMs.toString()
+            )
+        )
+    }
+
+    /**
      * Delete the vault (resets everything).
      * WARNING: This will make all data inaccessible.
      */
@@ -136,5 +153,10 @@ class VaultRepository @Inject constructor(
         database.deleteSetting(SettingsKeys.MASTER_PASSWORD_HASH)
         database.deleteSetting(SettingsKeys.VAULT_INITIALIZED)
         database.deleteSetting(SettingsKeys.BIOMETRIC_ENABLED)
+        database.deleteSetting(SettingsKeys.AUTO_LOCK_TIMEOUT_MS)
+    }
+
+    companion object {
+        const val DEFAULT_AUTO_LOCK_TIMEOUT_MS = 60_000L
     }
 }

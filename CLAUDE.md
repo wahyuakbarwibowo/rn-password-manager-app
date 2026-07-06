@@ -12,8 +12,8 @@ Native Android password manager. Kotlin + Jetpack Compose (Material 3), MVVM ove
 ./gradlew assembleDebug          # debug APK
 ./gradlew assembleRelease        # release (signs only if keystore.properties + storeFile exist, else unsigned)
 ./gradlew installDebug           # install on connected device (applicationId suffix .debug)
-./gradlew test                   # JVM unit tests (src/test)
-./gradlew connectedAndroidTest   # instrumented tests (src/androidTest, needs device/emulator)
+./gradlew test                   # JVM unit tests (src/test — none exist yet; create the dir when adding the first test)
+./gradlew connectedAndroidTest   # instrumented tests (src/androidTest — none exist yet; needs device/emulator)
 ./gradlew lint
 ```
 
