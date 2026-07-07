@@ -22,7 +22,7 @@ Run a single unit test:
 ./gradlew test --tests "com.aminmart.passwordmanager.SomeTest.methodName"
 ```
 
-Release builds use ABI splits (armeabi-v7a, arm64-v8a, x86, x86_64), R8 minify + resource shrink. No universal APK.
+Release builds produce a single universal APK with R8 minify + resource shrink (no ABI splits — the app has almost no native code). A `Makefile` wraps the common Gradle/adb commands (`make help`).
 
 ## Architecture
 

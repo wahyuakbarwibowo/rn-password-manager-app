@@ -5,8 +5,8 @@
 GRADLE = ./gradlew
 ADB = adb
 PACKAGE = com.aminmart.passwordmanager.debug
-APK_DEBUG_DIR = app/build/outputs/apk/debug
-APK_RELEASE_DIR = app/build/outputs/apk/release
+APK_DEBUG = app/build/outputs/apk/debug/app-debug.apk
+APK_RELEASE = app/build/outputs/apk/release/app-release.apk
 
 help:
 	@echo "Aminmart Password Manager - Available Commands"
@@ -39,16 +39,11 @@ clean:
 build:
 	$(GRADLE) assembleDebug
 	@echo ""
-	@echo "✓ Debug APKs (per-ABI):"
-	@ls -1 $(APK_DEBUG_DIR)/*.apk
+	@echo "✓ Debug APK ready: $(APK_DEBUG)"
 
-# Builds are split per ABI; pick the APK matching the connected device
 install:
-	@ABI=$$($(ADB) shell getprop ro.product.cpu.abi | tr -d '\r'); \
-	APK="$(APK_DEBUG_DIR)/app-$$ABI-debug.apk"; \
-	if [ ! -f "$$APK" ]; then echo "✗ $$APK tidak ditemukan. Jalankan 'make build' dulu."; exit 1; fi; \
-	$(ADB) install -r "$$APK"; \
-	echo "✓ Installed $$APK"
+	$(ADB) install -r $(APK_DEBUG)
+	@echo "✓ App installed"
 
 run:
 	$(ADB) shell am start -n $(PACKAGE)/com.aminmart.passwordmanager.MainActivity
@@ -57,12 +52,12 @@ run:
 dev: build install run
 
 # Release build; the gradle config signs automatically when
-# keystore.properties + the keystore file exist, else produces unsigned APKs
+# keystore.properties + the keystore file exist, else produces an unsigned APK
 release:
 	$(GRADLE) assembleRelease
 	@echo ""
-	@echo "✓ Release APKs (per-ABI):"
-	@ls -1 $(APK_RELEASE_DIR)/*.apk
+	@echo "✓ Release APK:"
+	@ls -1 app/build/outputs/apk/release/*.apk
 
 release-signed:
 	@if [ ! -f keystore.properties ]; then \
@@ -71,8 +66,8 @@ release-signed:
 	fi
 	$(GRADLE) assembleRelease
 	@echo ""
-	@echo "✓ Signed release APKs (per-ABI):"
-	@ls -1 $(APK_RELEASE_DIR)/*.apk
+	@echo "✓ Signed release APK:"
+	@ls -1 app/build/outputs/apk/release/*.apk
 
 test:
 	$(GRADLE) test

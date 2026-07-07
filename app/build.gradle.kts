@@ -64,17 +64,11 @@ android {
             versionNameSuffix = "-debug"
         }
     }
-    
-    // APK splits - build separate APKs per ABI to reduce size
-    splits {
-        abi {
-            isEnable = true
-            reset()
-            include("armeabi-v7a", "arm64-v8a", "x86", "x86_64")
-            isUniversalApk = false
-        }
-    }
-    
+
+    // No ABI splits: the app has ~17KB of native libs, so per-ABI APKs
+    // were all the same size and just quadrupled the release artifacts
+
+
     compileOptions {
         sourceCompatibility = JavaVersion.VERSION_17
         targetCompatibility = JavaVersion.VERSION_17
