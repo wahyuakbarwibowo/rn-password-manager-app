@@ -43,6 +43,13 @@ class PasswordRepository @Inject constructor(
     }
 
     /**
+     * Get all passwords as a decrypted snapshot (for backup export).
+     */
+    suspend fun getAllPasswordsList(): List<PasswordEntry> {
+        return database.getAllPasswordsList().map { decryptPassword(it) }
+    }
+
+    /**
      * Get a password by ID.
      */
     suspend fun getPasswordById(id: Long): PasswordEntry? {
@@ -69,7 +76,9 @@ class PasswordRepository @Inject constructor(
             category = input.category.toEntityCategory(),
             icon = "",
             ciphertext = encryptedSecrets.ciphertext,
-            nonce = encryptedSecrets.nonce
+            nonce = encryptedSecrets.nonce,
+            createdAt = input.createdAt ?: System.currentTimeMillis(),
+            updatedAt = input.updatedAt ?: System.currentTimeMillis()
         )
 
         return database.insertPassword(entity)

@@ -45,6 +45,18 @@ fun SettingsScreen(
         uri?.let { viewModel.requestImportBackup(it, ImportMode.MERGE) }
     }
 
+    val importJsonLauncher = rememberLauncherForActivityResult(
+        contract = ActivityResultContracts.GetContent()
+    ) { uri ->
+        uri?.let { viewModel.importJson(it) }
+    }
+
+    val recoveryKeyLauncher = rememberLauncherForActivityResult(
+        contract = ActivityResultContracts.CreateDocument("application/json")
+    ) { uri ->
+        uri?.let { viewModel.generateRecoveryKey(it) }
+    }
+
     // Biometric authentication launcher
     val biometricLauncher = rememberLauncherForActivityResult(
         contract = ActivityResultContracts.StartActivityForResult()
@@ -107,6 +119,18 @@ fun SettingsScreen(
 
                 HorizontalDivider()
 
+                // Recovery key file
+                SettingsNavItem(
+                    icon = Icons.Default.Key,
+                    title = "Recovery Key",
+                    subtitle = "Generate a file to reset a forgotten master password",
+                    onClick = {
+                        recoveryKeyLauncher.launch("aminmart-recovery-key.json")
+                    }
+                )
+
+                HorizontalDivider()
+
                 // Export backup
                 SettingsNavItem(
                     icon = Icons.Default.Upload,
@@ -127,6 +151,18 @@ fun SettingsScreen(
                     subtitle = "Restore from backup",
                     onClick = {
                         importLauncher.launch("*/*")
+                    }
+                )
+
+                HorizontalDivider()
+
+                // Import plain JSON
+                SettingsNavItem(
+                    icon = Icons.Default.DataObject,
+                    title = "Import from JSON",
+                    subtitle = "Plain JSON file, e.g. from another app",
+                    onClick = {
+                        importJsonLauncher.launch("*/*")
                     }
                 )
             }
@@ -233,7 +269,7 @@ fun SettingsScreen(
     if (uiState.showPasswordDialogForImport) {
         PasswordVerificationDialog(
             title = "Verify Password",
-            description = "Enter your master password to import backup",
+            description = "Enter the master password the backup was created with",
             onDismiss = viewModel::cancelImport,
             onVerify = viewModel::importBackup
         )

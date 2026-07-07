@@ -19,4 +19,6 @@ object SettingsKeys {
     const val BIOMETRIC_ENABLED = "biometric_enabled"
     const val VAULT_INITIALIZED = "vault_initialized"
     const val AUTO_LOCK_TIMEOUT_MS = "auto_lock_timeout_ms"
+    const val RECOVERY_KEY_SALT = "recovery_key_salt"
+    const val RECOVERY_KEY_HASH = "recovery_key_hash"
 }

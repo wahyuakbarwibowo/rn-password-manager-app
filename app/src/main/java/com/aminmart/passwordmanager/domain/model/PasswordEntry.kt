@@ -38,7 +38,10 @@ data class CreatePasswordInput(
     val password: String,
     val website: String = "",
     val notes: String = "",
-    val category: PasswordCategory = PasswordCategory.OTHER
+    val category: PasswordCategory = PasswordCategory.OTHER,
+    // Set when restoring from backup to preserve original timestamps
+    val createdAt: Long? = null,
+    val updatedAt: Long? = null
 )
 
 /**

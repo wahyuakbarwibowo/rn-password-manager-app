@@ -8,6 +8,7 @@ import com.aminmart.passwordmanager.data.local.PasswordEntity
 import com.aminmart.passwordmanager.data.local.PasswordCategory
 import com.aminmart.passwordmanager.data.security.EncryptedData
 import com.aminmart.passwordmanager.data.security.EncryptionService
+import com.aminmart.passwordmanager.domain.model.CreatePasswordInput
 import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
@@ -27,75 +28,80 @@ import javax.inject.Singleton
 class BackupService @Inject constructor(
     @ApplicationContext private val context: Context,
     private val database: PasswordDatabase,
-    private val encryptionService: EncryptionService
+    private val encryptionService: EncryptionService,
+    private val passwordRepository: PasswordRepository
 ) {
 
     companion object {
-        private const val BACKUP_VERSION = 1
-        private const val BACKUP_FILE_EXTENSION = ".aminmartbackup"
+        private const val BACKUP_VERSION = 2
         private const val PBKDF2_ITERATIONS = 100000
         private const val SALT_LENGTH = 32
+        private const val GCM_IV_LENGTH = 12
+        private const val GCM_TAG_LENGTH = 128
     }
 
     private val secureRandom = java.security.SecureRandom()
 
     /**
      * Export all passwords to a backup file.
+     *
+     * Version 2 format: the payload holds plaintext entries and is encrypted
+     * with a key derived from the master password (PBKDF2 + AES-GCM), so the
+     * backup can be restored on any device — unlike v1, which was tied to
+     * this device's Keystore key.
      */
     suspend fun exportBackup(
         masterPassword: String,
         uri: Uri
     ): BackupResult = withContext(Dispatchers.IO) {
         try {
-            // Get all encrypted passwords
-            val passwords = database.getAllEncryptedPasswords()
+            val passwords = passwordRepository.getAllPasswordsList()
 
             if (passwords.isEmpty()) {
                 return@withContext BackupResult.Error("No passwords to backup")
             }
 
-            // Create backup payload JSON
             val passwordsArray = JSONArray()
-            passwords.forEach { entity ->
-                val passwordObj = JSONObject()
-                    .put("title", entity.title)
-                    .put("username", entity.username)
-                    .put("website", entity.website)
-                    .put("category", entity.category.name)
-                    .put("ciphertext", entity.ciphertext ?: "")
-                    .put("nonce", entity.nonce ?: "")
-                    .put("createdAt", entity.createdAt)
-                    .put("updatedAt", entity.updatedAt)
-                passwordsArray.put(passwordObj)
+            passwords.forEach { entry ->
+                passwordsArray.put(
+                    JSONObject()
+                        .put("title", entry.title)
+                        .put("username", entry.username)
+                        .put("password", entry.password)
+                        .put("website", entry.website)
+                        .put("notes", entry.notes)
+                        .put("category", entry.category.name)
+                        .put("createdAt", entry.createdAt)
+                        .put("updatedAt", entry.updatedAt)
+                )
             }
 
-            val payloadObj = JSONObject()
+            val payloadBytes = JSONObject()
                 .put("version", BACKUP_VERSION)
                 .put("createdAt", System.currentTimeMillis())
                 .put("passwords", passwordsArray)
+                .toString()
+                .toByteArray(StandardCharsets.UTF_8)
 
-            val payloadBytes = payloadObj.toString().toByteArray(StandardCharsets.UTF_8)
-
-            // Derive key from master password and encrypt payload
+            // Encrypt payload with a key derived from the master password
             val salt = ByteArray(SALT_LENGTH).apply { secureRandom.nextBytes(this) }
+            val key = deriveKeyFromPassword(masterPassword, salt)
+            val cipher = javax.crypto.Cipher.getInstance("AES/GCM/NoPadding")
+            cipher.init(javax.crypto.Cipher.ENCRYPT_MODE, key)
+            val nonce = cipher.iv
+            val ciphertext = cipher.doFinal(payloadBytes)
 
-            // Encrypt payload
-            val encryptedData = encryptionService.encrypt(payloadBytes)
-
-            // Create backup file JSON
-            val backupObj = JSONObject()
+            val backupJson = JSONObject()
                 .put("version", BACKUP_VERSION)
                 .put("createdAt", System.currentTimeMillis())
                 .put("salt", Base64.encodeToString(salt, Base64.NO_WRAP))
-                .put("ciphertext", Base64.encodeToString(encryptedData.ciphertext, Base64.NO_WRAP))
-                .put("nonce", Base64.encodeToString(encryptedData.nonce, Base64.NO_WRAP))
+                .put("ciphertext", Base64.encodeToString(ciphertext, Base64.NO_WRAP))
+                .put("nonce", Base64.encodeToString(nonce, Base64.NO_WRAP))
+                .toString()
 
-            val backupJson = backupObj.toString()
-
-            // Write to URI
             context.contentResolver.openOutputStream(uri)?.use { outputStream ->
                 outputStream.write(backupJson.toByteArray(StandardCharsets.UTF_8))
-            }
+            } ?: return@withContext BackupResult.Error("Failed to write backup file")
 
             BackupResult.Success(passwords.size)
         } catch (e: Exception) {
@@ -127,21 +133,29 @@ class BackupService @Inject constructor(
                 return@withContext BackupResult.Error("Invalid backup file format")
             }
 
-            val version = backupObj.getInt("version")
-            if (version != BACKUP_VERSION) {
-                return@withContext BackupResult.Error("Unsupported backup version")
-            }
-
-            // Derive key from master password
+            val version = backupObj.optInt("version", -1)
             val salt = Base64.decode(backupObj.getString("salt"), Base64.NO_WRAP)
-
-            // Decrypt payload
             val ciphertext = Base64.decode(backupObj.getString("ciphertext"), Base64.NO_WRAP)
             val nonce = Base64.decode(backupObj.getString("nonce"), Base64.NO_WRAP)
 
-            val encryptedData = EncryptedData(ciphertext = ciphertext, nonce = nonce)
             val payloadBytes = try {
-                encryptionService.decrypt(encryptedData)
+                when (version) {
+                    // v2: key derived from the password the backup was created with
+                    2 -> {
+                        val key = deriveKeyFromPassword(masterPassword, salt)
+                        val cipher = javax.crypto.Cipher.getInstance("AES/GCM/NoPadding")
+                        cipher.init(
+                            javax.crypto.Cipher.DECRYPT_MODE,
+                            key,
+                            javax.crypto.spec.GCMParameterSpec(GCM_TAG_LENGTH, nonce)
+                        )
+                        cipher.doFinal(ciphertext)
+                    }
+                    // v1 (legacy): encrypted with this device's Keystore key,
+                    // only restorable on the same device/installation
+                    1 -> encryptionService.decrypt(EncryptedData(ciphertext = ciphertext, nonce = nonce))
+                    else -> return@withContext BackupResult.Error("Unsupported backup version")
+                }
             } catch (e: Exception) {
                 return@withContext BackupResult.Error("Wrong password or corrupted backup")
             }
@@ -177,8 +191,6 @@ class BackupService @Inject constructor(
                     val username = item.getString("username")
                     val website = item.getString("website")
                     val category = item.getString("category")
-                    val ciphertext = item.getString("ciphertext")
-                    val nonce = item.getString("nonce")
                     val createdAt = item.getLong("createdAt")
                     val updatedAt = item.getLong("updatedAt")
 
@@ -192,21 +204,39 @@ class BackupService @Inject constructor(
                         }
                     }
 
-                    val entity = PasswordEntity(
-                        title = title,
-                        username = username,
-                        passwordEncrypted = ciphertext,
-                        website = website,
-                        notesEncrypted = "",
-                        category = PasswordCategory.valueOf(category),
-                        icon = "",
-                        ciphertext = ciphertext,
-                        nonce = nonce,
-                        createdAt = createdAt,
-                        updatedAt = updatedAt
-                    )
-
-                    database.insertPassword(entity)
+                    if (version == 2) {
+                        // Plaintext entry: re-encrypt with this device's key
+                        passwordRepository.createPassword(
+                            CreatePasswordInput(
+                                title = title,
+                                username = username,
+                                password = item.getString("password"),
+                                website = website,
+                                notes = item.optString("notes"),
+                                category = com.aminmart.passwordmanager.domain.model.PasswordCategory.valueOf(category),
+                                createdAt = createdAt,
+                                updatedAt = updatedAt
+                            )
+                        )
+                    } else {
+                        // v1: entry ciphertext already encrypted with this device's Keystore key
+                        val ciphertext1 = item.getString("ciphertext")
+                        database.insertPassword(
+                            PasswordEntity(
+                                title = title,
+                                username = username,
+                                passwordEncrypted = ciphertext1,
+                                website = website,
+                                notesEncrypted = "",
+                                category = PasswordCategory.valueOf(category),
+                                icon = "",
+                                ciphertext = ciphertext1,
+                                nonce = item.getString("nonce"),
+                                createdAt = createdAt,
+                                updatedAt = updatedAt
+                            )
+                        )
+                    }
                     imported++
                 } catch (e: Exception) {
                     // Skip failed imports
@@ -221,9 +251,80 @@ class BackupService @Inject constructor(
     }
 
     /**
-     * Derive an encryption key from the master password using PBKDF2.
+     * Import passwords from a plain (unencrypted) JSON file.
+     *
+     * Accepts either a top-level array or an object with a "passwords" array.
+     * Each item needs "title" and "password"; "username", "website", "notes",
+     * and "category" are optional. Always merges: duplicates
+     * (same title + username + website) are skipped.
      */
-    private fun deriveKeyFromPassword(password: String, salt: ByteArray): ByteArray {
+    suspend fun importJson(uri: Uri): BackupResult = withContext(Dispatchers.IO) {
+        try {
+            val text = context.contentResolver.openInputStream(uri)?.use { inputStream ->
+                BufferedReader(InputStreamReader(inputStream, StandardCharsets.UTF_8)).use { reader ->
+                    reader.readText()
+                }
+            } ?: return@withContext BackupResult.Error("Failed to read file")
+
+            val passwordsArray = try {
+                val trimmed = text.trim()
+                if (trimmed.startsWith("[")) JSONArray(trimmed) else JSONObject(trimmed).getJSONArray("passwords")
+            } catch (e: Exception) {
+                return@withContext BackupResult.Error("Invalid JSON format")
+            }
+
+            val existing = database.getAllPasswordsList()
+            var imported = 0
+            var skipped = 0
+
+            for (i in 0 until passwordsArray.length()) {
+                val item = passwordsArray.optJSONObject(i)
+                val title = item?.optString("title").orEmpty()
+                val password = item?.optString("password").orEmpty()
+                if (item == null || title.isBlank() || password.isEmpty()) {
+                    skipped++
+                    continue
+                }
+
+                val username = item.optString("username")
+                val website = item.optString("website")
+                val isDuplicate = existing.any {
+                    it.title == title && it.username == username && it.website == website
+                }
+                if (isDuplicate) {
+                    skipped++
+                    continue
+                }
+
+                val category = runCatching {
+                    com.aminmart.passwordmanager.domain.model.PasswordCategory.valueOf(
+                        item.optString("category").uppercase()
+                    )
+                }.getOrDefault(com.aminmart.passwordmanager.domain.model.PasswordCategory.OTHER)
+
+                passwordRepository.createPassword(
+                    CreatePasswordInput(
+                        title = title,
+                        username = username,
+                        password = password,
+                        website = website,
+                        notes = item.optString("notes"),
+                        category = category
+                    )
+                )
+                imported++
+            }
+
+            BackupResult.Success(imported = imported, skipped = skipped)
+        } catch (e: Exception) {
+            BackupResult.Error("Import failed: ${e.message}")
+        }
+    }
+
+    /**
+     * Derive an AES key from the backup password using PBKDF2.
+     */
+    private fun deriveKeyFromPassword(password: String, salt: ByteArray): javax.crypto.SecretKey {
         val spec = javax.crypto.spec.PBEKeySpec(
             password.toCharArray(),
             salt,
@@ -232,7 +333,7 @@ class BackupService @Inject constructor(
         )
         try {
             val factory = javax.crypto.SecretKeyFactory.getInstance("PBKDF2WithHmacSHA256")
-            return factory.generateSecret(spec).encoded
+            return javax.crypto.spec.SecretKeySpec(factory.generateSecret(spec).encoded, "AES")
         } finally {
             spec.clearPassword()
         }

@@ -1,5 +1,7 @@
 package com.aminmart.passwordmanager.ui.screens.auth
 
+import androidx.activity.compose.rememberLauncherForActivityResult
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
@@ -23,14 +25,80 @@ fun AuthScreen(
     val uiState by viewModel.uiState.collectAsState()
     val activity = LocalContext.current as? FragmentActivity
 
+    val recoveryFileLauncher = rememberLauncherForActivityResult(
+        ActivityResultContracts.GetContent()
+    ) { uri -> uri?.let(viewModel::verifyRecoveryFile) }
+
     AuthScreenContent(
         uiState = uiState,
         onMasterPasswordChange = viewModel::onMasterPasswordChange,
         onConfirmPasswordChange = viewModel::onConfirmPasswordChange,
         onAuthenticate = viewModel::authenticate,
         onBiometricAuth = { activity?.let(viewModel::authenticateWithBiometric) },
+        onForgotPassword = viewModel::onForgotPassword,
         onAuthSuccess = onAuthSuccess
     )
+
+    if (uiState.showForgotDialog) {
+        AlertDialog(
+            onDismissRequest = viewModel::dismissForgotDialog,
+            title = { Text("Forgot Password?") },
+            text = {
+                Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
+                    Text("Choose how to verify your identity and set a new master password. Your saved passwords will be kept.")
+                    if (uiState.hasRecoveryKey) {
+                        Button(
+                            onClick = { recoveryFileLauncher.launch("*/*") },
+                            modifier = Modifier.fillMaxWidth()
+                        ) { Text("Use Recovery Key File") }
+                    }
+                    if (uiState.biometricEnabled) {
+                        Button(
+                            onClick = { activity?.let(viewModel::authenticateWithBiometricForReset) },
+                            modifier = Modifier.fillMaxWidth()
+                        ) { Text("Use Biometric") }
+                    }
+                    if (!uiState.hasRecoveryKey && !uiState.biometricEnabled) {
+                        Text(
+                            "No recovery key or biometric is set up. The only option is to reset the app, which deletes all saved passwords.",
+                            color = MaterialTheme.colorScheme.error,
+                            style = MaterialTheme.typography.bodySmall
+                        )
+                    }
+                    OutlinedButton(
+                        onClick = viewModel::requestWipe,
+                        modifier = Modifier.fillMaxWidth(),
+                        colors = ButtonDefaults.outlinedButtonColors(
+                            contentColor = MaterialTheme.colorScheme.error
+                        )
+                    ) { Text("Reset App (Delete All Data)") }
+                }
+            },
+            confirmButton = {},
+            dismissButton = {
+                TextButton(onClick = viewModel::dismissForgotDialog) { Text("Cancel") }
+            }
+        )
+    }
+
+    if (uiState.showWipeConfirmDialog) {
+        AlertDialog(
+            onDismissRequest = viewModel::dismissWipeConfirm,
+            title = { Text("Delete All Data?") },
+            text = { Text("This permanently deletes ALL saved passwords and resets the app. This cannot be undone.") },
+            confirmButton = {
+                TextButton(
+                    onClick = viewModel::wipeAndStartOver,
+                    colors = ButtonDefaults.textButtonColors(
+                        contentColor = MaterialTheme.colorScheme.error
+                    )
+                ) { Text("Delete Everything") }
+            },
+            dismissButton = {
+                TextButton(onClick = viewModel::dismissWipeConfirm) { Text("Cancel") }
+            }
+        )
+    }
 }
 
 @Composable
@@ -40,6 +108,7 @@ private fun AuthScreenContent(
     onConfirmPasswordChange: (String) -> Unit,
     onAuthenticate: () -> Unit,
     onBiometricAuth: () -> Unit,
+    onForgotPassword: () -> Unit,
     onAuthSuccess: () -> Unit
 ) {
     LaunchedEffect(uiState.isAuthenticated) {
@@ -47,6 +116,9 @@ private fun AuthScreenContent(
             onAuthSuccess()
         }
     }
+
+    // Setup and reset both use the password+confirm form
+    val needsConfirm = uiState.needsSetup || uiState.isResetMode
 
     Box(
         modifier = Modifier
@@ -63,31 +135,35 @@ private fun AuthScreenContent(
                 text = "🔐",
                 style = MaterialTheme.typography.displayLarge
             )
-            
+
             Text(
-                text = if (uiState.needsSetup) "Set Master Password" else "Enter Master Password",
+                text = when {
+                    uiState.isResetMode -> "Set New Master Password"
+                    uiState.needsSetup -> "Set Master Password"
+                    else -> "Enter Master Password"
+                },
                 style = MaterialTheme.typography.headlineSmall
             )
-            
+
             Text(
-                text = if (uiState.needsSetup) {
-                    "Create a master password to protect all your passwords"
-                } else {
-                    "Enter your master password to unlock your vault"
+                text = when {
+                    uiState.isResetMode -> "Identity verified. Choose a new master password"
+                    uiState.needsSetup -> "Create a master password to protect all your passwords"
+                    else -> "Enter your master password to unlock your vault"
                 },
                 style = MaterialTheme.typography.bodyMedium,
                 color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.7f)
             )
-            
+
             Spacer(modifier = Modifier.height(16.dp))
-            
+
             OutlinedTextField(
                 value = uiState.masterPassword,
                 onValueChange = onMasterPasswordChange,
                 label = { Text("Master Password") },
                 visualTransformation = PasswordVisualTransformation(),
                 keyboardOptions = KeyboardOptions(
-                    imeAction = if (uiState.needsSetup) ImeAction.Next else ImeAction.Done,
+                    imeAction = if (needsConfirm) ImeAction.Next else ImeAction.Done,
                     keyboardType = KeyboardType.Password
                 ),
                 keyboardActions = KeyboardActions(onDone = { onAuthenticate() }),
@@ -96,7 +172,7 @@ private fun AuthScreenContent(
                 isError = uiState.errorMessage != null
             )
 
-            if (uiState.needsSetup) {
+            if (needsConfirm) {
                 OutlinedTextField(
                     value = uiState.confirmPassword,
                     onValueChange = onConfirmPasswordChange,
@@ -112,7 +188,7 @@ private fun AuthScreenContent(
                     isError = uiState.errorMessage != null
                 )
             }
-            
+
             if (uiState.errorMessage != null) {
                 Text(
                     text = uiState.errorMessage!!,
@@ -120,7 +196,7 @@ private fun AuthScreenContent(
                     style = MaterialTheme.typography.bodySmall
                 )
             }
-            
+
             Button(
                 onClick = onAuthenticate,
                 enabled = !uiState.isLoading,
@@ -135,15 +211,21 @@ private fun AuthScreenContent(
                     )
                 } else {
                     Text(
-                        text = if (uiState.needsSetup) "Save & Continue" else "Unlock",
+                        text = if (needsConfirm) "Save & Continue" else "Unlock",
                         style = MaterialTheme.typography.titleMedium
                     )
                 }
             }
-            
-            if (uiState.biometricAvailable && !uiState.needsSetup) {
+
+            if (uiState.biometricAvailable && !uiState.needsSetup && !uiState.isResetMode) {
                 TextButton(onClick = onBiometricAuth) {
                     Text("Use Biometric Instead")
+                }
+            }
+
+            if (!uiState.needsSetup && !uiState.isResetMode) {
+                TextButton(onClick = onForgotPassword) {
+                    Text("Forgot Password?")
                 }
             }
         }

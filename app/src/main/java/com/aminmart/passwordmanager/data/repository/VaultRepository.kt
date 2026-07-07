@@ -108,6 +108,32 @@ class VaultRepository @Inject constructor(
     }
 
     /**
+     * Reset the master password without knowing the old one (forgot-password flow).
+     * Caller MUST have verified the user's identity first (e.g. biometric).
+     * Safe for stored entries: they are encrypted with the Keystore key, not this password.
+     */
+    suspend fun resetMasterPassword(newPassword: String) {
+        if (newPassword.length < 8) {
+            throw IllegalArgumentException("New password must be at least 8 characters")
+        }
+
+        val passwordHash = passwordHashingService.hashPassword(newPassword)
+
+        database.saveSetting(
+            SettingsEntity(
+                key = SettingsKeys.MASTER_PASSWORD_SALT,
+                value = passwordHash.salt
+            )
+        )
+        database.saveSetting(
+            SettingsEntity(
+                key = SettingsKeys.MASTER_PASSWORD_HASH,
+                value = passwordHash.hash
+            )
+        )
+    }
+
+    /**
      * Check if biometric authentication is enabled.
      */
     fun isBiometricEnabled(): Flow<Boolean> {
@@ -124,6 +150,39 @@ class VaultRepository @Inject constructor(
                 key = SettingsKeys.BIOMETRIC_ENABLED,
                 value = enabled.toString()
             )
+        )
+    }
+
+    /**
+     * Generate a recovery key for the forgot-password flow.
+     * Returns the key string the user must keep (as a file); only its
+     * PBKDF2 hash is stored, so the key cannot be recovered from the app.
+     */
+    suspend fun generateRecoveryKey(): String {
+        val keyBytes = ByteArray(32).also { java.security.SecureRandom().nextBytes(it) }
+        val key = android.util.Base64.encodeToString(keyBytes, android.util.Base64.NO_WRAP)
+        val keyHash = passwordHashingService.hashPassword(key)
+
+        database.saveSetting(
+            SettingsEntity(key = SettingsKeys.RECOVERY_KEY_SALT, value = keyHash.salt)
+        )
+        database.saveSetting(
+            SettingsEntity(key = SettingsKeys.RECOVERY_KEY_HASH, value = keyHash.hash)
+        )
+        return key
+    }
+
+    suspend fun hasRecoveryKey(): Boolean {
+        return database.hasSetting(SettingsKeys.RECOVERY_KEY_HASH)
+    }
+
+    suspend fun verifyRecoveryKey(key: String): Boolean {
+        val saltSetting = database.getSetting(SettingsKeys.RECOVERY_KEY_SALT) ?: return false
+        val hashSetting = database.getSetting(SettingsKeys.RECOVERY_KEY_HASH) ?: return false
+        return passwordHashingService.verifyPassword(
+            password = key.trim(),
+            salt = saltSetting.value,
+            expectedHash = hashSetting.value
         )
     }
 
@@ -154,6 +213,8 @@ class VaultRepository @Inject constructor(
         database.deleteSetting(SettingsKeys.VAULT_INITIALIZED)
         database.deleteSetting(SettingsKeys.BIOMETRIC_ENABLED)
         database.deleteSetting(SettingsKeys.AUTO_LOCK_TIMEOUT_MS)
+        database.deleteSetting(SettingsKeys.RECOVERY_KEY_SALT)
+        database.deleteSetting(SettingsKeys.RECOVERY_KEY_HASH)
     }
 
     companion object {

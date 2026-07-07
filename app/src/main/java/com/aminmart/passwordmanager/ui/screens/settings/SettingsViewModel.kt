@@ -279,16 +279,8 @@ class SettingsViewModel @Inject constructor(
         viewModelScope.launch {
             _uiState.value = _uiState.value.copy(isLoading = true)
             try {
-                // Verify password first
-                val isValid = vaultRepository.verifyPassword(password)
-                if (!isValid) {
-                    _uiState.value = _uiState.value.copy(
-                        isLoading = false,
-                        statusMessage = "Invalid password"
-                    )
-                    return@launch
-                }
-
+                // No vault-password pre-check: the backup may have been created
+                // with an older master password; GCM decryption verifies it.
                 val uri = _uiState.value.pendingImportUri
                 if (uri == null) {
                     _uiState.value = _uiState.value.copy(
@@ -315,6 +307,48 @@ class SettingsViewModel @Inject constructor(
                 _uiState.value = _uiState.value.copy(
                     isLoading = false,
                     statusMessage = "Import failed: ${e.message}"
+                )
+            }
+        }
+    }
+
+    fun importJson(uri: android.net.Uri) {
+        viewModelScope.launch {
+            _uiState.value = _uiState.value.copy(isLoading = true)
+            val result = backupService.importJson(uri)
+            _uiState.value = _uiState.value.copy(
+                isLoading = false,
+                statusMessage = when (result) {
+                    is com.aminmart.passwordmanager.data.repository.BackupResult.Success ->
+                        "Imported ${result.imported} passwords (${result.skipped} skipped)"
+                    is com.aminmart.passwordmanager.data.repository.BackupResult.Error ->
+                        "Import failed: ${result.message}"
+                }
+            )
+        }
+    }
+
+    fun generateRecoveryKey(uri: android.net.Uri) {
+        viewModelScope.launch {
+            _uiState.value = _uiState.value.copy(isLoading = true)
+            try {
+                val key = vaultRepository.generateRecoveryKey()
+                val json = org.json.JSONObject()
+                    .put("app", "aminmart-password-manager")
+                    .put("type", "recovery-key")
+                    .put("key", key)
+                    .toString(2)
+                application.contentResolver.openOutputStream(uri)?.use { output ->
+                    output.write(json.toByteArray(Charsets.UTF_8))
+                } ?: throw java.io.IOException("Could not open file")
+                _uiState.value = _uiState.value.copy(
+                    isLoading = false,
+                    statusMessage = "Recovery key saved. Keep this file somewhere safe — it can reset your master password."
+                )
+            } catch (e: Exception) {
+                _uiState.value = _uiState.value.copy(
+                    isLoading = false,
+                    statusMessage = "Failed to save recovery key: ${e.message}"
                 )
             }
         }
