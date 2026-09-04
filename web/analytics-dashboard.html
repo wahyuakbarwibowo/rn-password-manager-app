@@ -1,0 +1,255 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Analytics Dashboard - Aminmart Password Manager</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script src="analytics.js"></script>
+    <style>
+        .stat-card {
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+        .stat-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.1);
+        }
+    </style>
+</head>
+<body class="bg-gradient-to-br from-pink-50 to-rose-100 min-h-screen">
+    <!-- Navigation -->
+    <nav class="bg-white shadow-lg sticky top-0 z-50">
+        <div class="max-w-6xl mx-auto px-4">
+            <div class="flex justify-between">
+                <div class="flex space-x-7">
+                    <div>
+                        <a href="index.html" class="flex items-center py-4 px-2">
+                            <span class="font-semibold text-lg text-pink-600">Aminmart Password Manager</span>
+                        </a>
+                    </div>
+                </div>
+                <div class="hidden md:flex items-center space-x-4">
+                    <a href="index.html" class="py-4 px-2 text-gray-500 hover:text-pink-600 transition duration-300">Home</a>
+                    <a href="support-id.html" class="py-4 px-2 text-gray-500 hover:text-pink-600 transition duration-300">Dukungan</a>
+                    <a href="support-en.html" class="py-4 px-2 text-gray-500 hover:text-pink-600 transition duration-300">Support</a>
+                    <a href="contact.html" class="py-4 px-2 text-gray-500 hover:text-pink-600 transition duration-300">Hubungi Kami</a>
+                    <a href="delete-account.html" class="py-4 px-2 text-gray-500 hover:text-pink-600 transition duration-300">Cara Hapus Akun</a>
+                </div>
+                <div class="md:hidden flex items-center">
+                    <button class="outline-none mobile-menu-button">
+                        <svg class="w-6 h-6 text-gray-500" x-show="!showMenu" fill="none" 
+                            stroke-linecap="round" stroke-linejoin="round" stroke-width="2" 
+                            viewBox="0 0 24 24" stroke="currentColor">
+                            <path d="M4 6h16M4 12h16M4 18h16"></path>
+                        </svg>
+                    </button>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Analytics Dashboard -->
+    <section class="py-16 bg-white">
+        <div class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
+            <h1 class="text-3xl md:text-4xl font-bold text-center text-gray-800 mb-4">Analytics Dashboard</h1>
+            <p class="text-center text-gray-600 mb-12">Real-time statistics for Aminmart Password Manager website</p>
+            
+            <!-- Summary Cards -->
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-8 mb-12">
+                <div class="bg-gradient-to-r from-pink-500 to-pink-600 text-white rounded-xl shadow-lg p-6 stat-card">
+                    <div class="flex items-center">
+                        <div class="p-3 rounded-full bg-white bg-opacity-20 mr-4">
+                            <i class="fas fa-eye text-xl"></i>
+                        </div>
+                        <div>
+                            <p class="text-sm opacity-80">Total Page Views</p>
+                            <p class="text-3xl font-bold"><span id="total-page-views">0</span></p>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="bg-gradient-to-r from-rose-500 to-rose-600 text-white rounded-xl shadow-lg p-6 stat-card">
+                    <div class="flex items-center">
+                        <div class="p-3 rounded-full bg-white bg-opacity-20 mr-4">
+                            <i class="fas fa-download text-xl"></i>
+                        </div>
+                        <div>
+                            <p class="text-sm opacity-80">Total Downloads</p>
+                            <p class="text-3xl font-bold"><span id="total-downloads">0</span></p>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="bg-gradient-to-r from-purple-500 to-purple-600 text-white rounded-xl shadow-lg p-6 stat-card">
+                    <div class="flex items-center">
+                        <div class="p-3 rounded-full bg-white bg-opacity-20 mr-4">
+                            <i class="fas fa-sync-alt text-xl"></i>
+                        </div>
+                        <div>
+                            <p class="text-sm opacity-80">Last Updated</p>
+                            <p class="text-lg font-bold"><span id="last-updated">-</span></p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Page Views Detail -->
+            <div class="bg-white rounded-xl shadow-md p-8 mb-12">
+                <h2 class="text-2xl font-bold text-gray-800 mb-6 flex items-center">
+                    <i class="fas fa-chart-bar text-pink-600 mr-3"></i> Page Views by Page
+                </h2>
+                
+                <div class="space-y-4">
+                    <div class="flex items-center justify-between p-4 bg-pink-50 rounded-lg">
+                        <div class="flex items-center">
+                            <i class="fas fa-home text-pink-600 mr-3"></i>
+                            <span class="font-medium">Home (index.html)</span>
+                        </div>
+                        <span class="text-xl font-bold text-pink-600"><span id="index-views">0</span> views</span>
+                    </div>
+                    
+                    <div class="flex items-center justify-between p-4 bg-pink-50 rounded-lg">
+                        <div class="flex items-center">
+                            <i class="fas fa-envelope text-pink-600 mr-3"></i>
+                            <span class="font-medium">Contact (contact.html)</span>
+                        </div>
+                        <span class="text-xl font-bold text-pink-600"><span id="contact-views">0</span> views</span>
+                    </div>
+                    
+                    <div class="flex items-center justify-between p-4 bg-pink-50 rounded-lg">
+                        <div class="flex items-center">
+                            <i class="fas fa-trash-alt text-pink-600 mr-3"></i>
+                            <span class="font-medium">Delete Account (delete-account.html)</span>
+                        </div>
+                        <span class="text-xl font-bold text-pink-600"><span id="delete-views">0</span> views</span>
+                    </div>
+                    
+                    <div class="flex items-center justify-between p-4 bg-pink-50 rounded-lg">
+                        <div class="flex items-center">
+                            <i class="fas fa-life-ring text-pink-600 mr-3"></i>
+                            <span class="font-medium">Support ID (support-id.html)</span>
+                        </div>
+                        <span class="text-xl font-bold text-pink-600"><span id="support-id-views">0</span> views</span>
+                    </div>
+                    
+                    <div class="flex items-center justify-between p-4 bg-pink-50 rounded-lg">
+                        <div class="flex items-center">
+                            <i class="fas fa-life-ring text-pink-600 mr-3"></i>
+                            <span class="font-medium">Support EN (support-en.html)</span>
+                        </div>
+                        <span class="text-xl font-bold text-pink-600"><span id="support-en-views">0</span> views</span>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Download Stats -->
+            <div class="bg-white rounded-xl shadow-md p-8 mb-12">
+                <h2 class="text-2xl font-bold text-gray-800 mb-6 flex items-center">
+                    <i class="fas fa-file-download text-rose-600 mr-3"></i> Download Clicks by Page
+                </h2>
+                
+                <div class="space-y-4">
+                    <div class="flex items-center justify-between p-4 bg-rose-50 rounded-lg">
+                        <div class="flex items-center">
+                            <i class="fas fa-home text-rose-600 mr-3"></i>
+                            <span class="font-medium">Home (index.html)</span>
+                        </div>
+                        <span class="text-xl font-bold text-rose-600"><span id="index-downloads">0</span> downloads</span>
+                    </div>
+                    
+                    <div class="flex items-center justify-between p-4 bg-rose-50 rounded-lg">
+                        <div class="flex items-center">
+                            <i class="fas fa-envelope text-rose-600 mr-3"></i>
+                            <span class="font-medium">Contact (contact.html)</span>
+                        </div>
+                        <span class="text-xl font-bold text-rose-600"><span id="contact-downloads">0</span> downloads</span>
+                    </div>
+                    
+                    <div class="flex items-center justify-between p-4 bg-rose-50 rounded-lg">
+                        <div class="flex items-center">
+                            <i class="fas fa-trash-alt text-rose-600 mr-3"></i>
+                            <span class="font-medium">Delete Account (delete-account.html)</span>
+                        </div>
+                        <span class="text-xl font-bold text-rose-600"><span id="delete-downloads">0</span> downloads</span>
+                    </div>
+                    
+                    <div class="flex items-center justify-between p-4 bg-rose-50 rounded-lg">
+                        <div class="flex items-center">
+                            <i class="fas fa-life-ring text-rose-600 mr-3"></i>
+                            <span class="font-medium">Support ID (support-id.html)</span>
+                        </div>
+                        <span class="text-xl font-bold text-rose-600"><span id="support-id-downloads">0</span> downloads</span>
+                    </div>
+                    
+                    <div class="flex items-center justify-between p-4 bg-rose-50 rounded-lg">
+                        <div class="flex items-center">
+                            <i class="fas fa-life-ring text-rose-600 mr-3"></i>
+                            <span class="font-medium">Support EN (support-en.html)</span>
+                        </div>
+                        <span class="text-xl font-bold text-rose-600"><span id="support-en-downloads">0</span> downloads</span>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Instructions -->
+            <div class="bg-yellow-50 border-l-4 border-yellow-500 p-6 rounded-lg">
+                <h3 class="text-lg font-semibold text-yellow-800 mb-2 flex items-center">
+                    <i class="fas fa-info-circle text-yellow-600 mr-2"></i> About This Analytics System
+                </h3>
+                <p class="text-yellow-700">
+                    This analytics system tracks page views and download button clicks using browser localStorage. 
+                    Data is stored locally in each visitor's browser and will reset if they clear their browser data. 
+                    For persistent analytics across all users, a server-side solution would be needed.
+                </p>
+            </div>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer class="bg-pink-800 text-white py-10">
+        <div class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="text-center">
+                <p>&copy; 2026 Aminmart Password Manager. All rights reserved.</p>
+                <div class="mt-4 flex justify-center space-x-6">
+                    <a href="index.html" class="hover:text-pink-300 transition duration-300">Home</a>
+                    <a href="support-id.html" class="hover:text-pink-300 transition duration-300">Dukungan dalam Bahasa</a>
+                    <a href="contact.html" class="hover:text-pink-300 transition duration-300">Contact Us</a>
+                    <a href="delete-account.html" class="hover:text-pink-300 transition duration-300">How to Delete Account</a>
+                </div>
+            </div>
+        </div>
+    </footer>
+
+    <script>
+        // Update the dashboard with analytics data
+        document.addEventListener('DOMContentLoaded', function() {
+            if (window.aminmartAnalytics) {
+                // Get the current analytics data
+                const analyticsData = window.aminmartAnalytics.getAnalyticsData();
+                
+                // Update summary stats
+                document.getElementById('total-page-views').textContent = analyticsData.total_page_views;
+                document.getElementById('total-downloads').textContent = analyticsData.total_download_clicks;
+                
+                const lastUpdatedDate = new Date(analyticsData.last_updated);
+                document.getElementById('last-updated').textContent = lastUpdatedDate.toLocaleString();
+                
+                // Update page view stats
+                document.getElementById('index-views').textContent = analyticsData.page_views['index.html'] || 0;
+                document.getElementById('contact-views').textContent = analyticsData.page_views['contact.html'] || 0;
+                document.getElementById('delete-views').textContent = analyticsData.page_views['delete-account.html'] || 0;
+                document.getElementById('support-id-views').textContent = analyticsData.page_views['support-id.html'] || 0;
+                document.getElementById('support-en-views').textContent = analyticsData.page_views['support-en.html'] || 0;
+                
+                // Update download stats
+                document.getElementById('index-downloads').textContent = analyticsData.download_clicks['index.html'] || 0;
+                document.getElementById('contact-downloads').textContent = analyticsData.download_clicks['contact.html'] || 0;
+                document.getElementById('delete-downloads').textContent = analyticsData.download_clicks['delete-account.html'] || 0;
+                document.getElementById('support-id-downloads').textContent = analyticsData.download_clicks['support-id.html'] || 0;
+                document.getElementById('support-en-downloads').textContent = analyticsData.download_clicks['support-en.html'] || 0;
+            }
+        });
+    </script>
+</body>
+</html>

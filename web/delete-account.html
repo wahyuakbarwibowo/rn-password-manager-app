@@ -1,0 +1,265 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Cara Hapus Akun - Aminmart Password Manager</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script src="analytics.js"></script>
+</head>
+<body class="bg-gradient-to-br from-pink-50 to-rose-100 min-h-screen">
+    <!-- Navigation -->
+    <nav class="bg-white shadow-lg sticky top-0 z-50">
+        <div class="max-w-6xl mx-auto px-4">
+            <div class="flex justify-between">
+                <div class="flex space-x-7">
+                    <div>
+                        <a href="index.html" class="flex items-center py-4 px-2">
+                            <span class="font-semibold text-lg text-pink-600">Aminmart Password Manager</span>
+                        </a>
+                    </div>
+                </div>
+                <div class="hidden md:flex items-center space-x-4">
+                    <a href="index.html" class="py-4 px-2 text-gray-500 hover:text-pink-600 transition duration-300">Home</a>
+                    <a href="support-id.html" class="py-4 px-2 text-gray-500 hover:text-pink-600 transition duration-300">Dukungan</a>
+                    <a href="support-en.html" class="py-4 px-2 text-gray-500 hover:text-pink-600 transition duration-300">Support</a>
+                    <a href="contact.html" class="py-4 px-2 text-gray-500 hover:text-pink-600 transition duration-300">Hubungi Kami</a>
+                    <a href="#" class="py-4 px-2 text-pink-600 border-b-2 border-pink-600 font-semibold">Cara Hapus Akun</a>
+                    <a href="analytics-dashboard.html" class="py-4 px-2 text-gray-500 hover:text-pink-600 transition duration-300">Analytics</a>
+                </div>
+                <div class="md:hidden flex items-center">
+                    <button class="outline-none mobile-menu-button">
+                        <svg class="w-6 h-6 text-gray-500" x-show="!showMenu" fill="none" 
+                            stroke-linecap="round" stroke-linejoin="round" stroke-width="2" 
+                            viewBox="0 0 24 24" stroke="currentColor">
+                            <path d="M4 6h16M4 12h16M4 18h16"></path>
+                        </svg>
+                    </button>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Account Deletion Guide Section -->
+    <section class="py-16 bg-white">
+        <div class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
+            <h1 class="text-3xl md:text-4xl font-bold text-center text-gray-800 mb-4">Cara Hapus Akun</h1>
+            <div class="text-center mb-8">
+                <p class="text-gray-600">Halaman dilihat: <span id="page-views-count">0</span> kali</p>
+            </div>
+            <p class="text-center text-gray-600 mb-12 max-w-2xl mx-auto">
+                Panduan lengkap tentang cara menghapus akun dan data Anda dari Aminmart Password Manager
+            </p>
+            
+            <div class="bg-red-50 border-l-4 border-red-500 p-6 rounded-lg mb-10">
+                <div class="flex">
+                    <div class="flex-shrink-0">
+                        <i class="fas fa-exclamation-triangle text-red-500 text-xl"></i>
+                    </div>
+                    <div class="ml-4">
+                        <p class="text-red-700 font-medium">Peringatan Penting:</p>
+                        <p class="text-red-600 mt-1">
+                            Penghapusan akun bersifat permanen dan tidak dapat dikembalikan. Pastikan Anda telah mencadangkan data penting sebelum melanjutkan.
+                        </p>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="space-y-10">
+                <div class="flex items-start">
+                    <div class="flex-shrink-0 w-10 h-10 bg-pink-100 rounded-full flex items-center justify-center mr-4 mt-1">
+                        <span class="text-pink-600 font-bold">1</span>
+                    </div>
+                    <div class="flex-1">
+                        <h2 class="text-xl font-semibold text-gray-800 mb-3">Buka Aplikasi</h2>
+                        <p class="text-gray-600 mb-3">
+                            Buka aplikasi Aminmart Password Manager di perangkat Android Anda.
+                        </p>
+                        <div class="bg-pink-50 p-4 rounded-lg">
+                            <p class="text-sm text-gray-700">
+                                <strong>Catatan:</strong> Jika Anda tidak dapat mengakses aplikasi karena lupa kata sandi, ikuti prosedur pemulihan yang dijelaskan di bawah.
+                            </p>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="flex items-start">
+                    <div class="flex-shrink-0 w-10 h-10 bg-pink-100 rounded-full flex items-center justify-center mr-4 mt-1">
+                        <span class="text-pink-600 font-bold">2</span>
+                    </div>
+                    <div class="flex-1">
+                        <h2 class="text-xl font-semibold text-gray-800 mb-3">Akses Pengaturan</h2>
+                        <p class="text-gray-600 mb-3">
+                            Ketuk ikon menu (biasanya berupa tiga garis horizontal) di pojok kiri atas aplikasi.
+                        </p>
+                        <p class="text-gray-600">
+                            Pilih opsi "Pengaturan" atau "Settings" dari menu yang muncul.
+                        </p>
+                    </div>
+                </div>
+                
+                <div class="flex items-start">
+                    <div class="flex-shrink-0 w-10 h-10 bg-pink-100 rounded-full flex items-center justify-center mr-4 mt-1">
+                        <span class="text-pink-600 font-bold">3</span>
+                    </div>
+                    <div class="flex-1">
+                        <h2 class="text-xl font-semibold text-gray-800 mb-3">Pilih Opsi Hapus Akun</h2>
+                        <p class="text-gray-600 mb-3">
+                            Gulir ke bawah dan temukan opsi "Hapus Akun" atau "Delete Account".
+                        </p>
+                        <p class="text-gray-600">
+                            Ketuk opsi tersebut untuk memulai proses penghapusan.
+                        </p>
+                    </div>
+                </div>
+                
+                <div class="flex items-start">
+                    <div class="flex-shrink-0 w-10 h-10 bg-pink-100 rounded-full flex items-center justify-center mr-4 mt-1">
+                        <span class="text-pink-600 font-bold">4</span>
+                    </div>
+                    <div class="flex-1">
+                        <h2 class="text-xl font-semibold text-gray-800 mb-3">Konfirmasi Identitas</h2>
+                        <p class="text-gray-600 mb-3">
+                            Anda akan diminta untuk mengonfirmasi identitas Anda dengan memasukkan kata sandi utama atau melalui verifikasi sidik jari/wajah jika fitur biometrik diaktifkan.
+                        </p>
+                        <p class="text-gray-600">
+                            Masukkan informasi yang diminta untuk melanjutkan.
+                        </p>
+                    </div>
+                </div>
+                
+                <div class="flex items-start">
+                    <div class="flex-shrink-0 w-10 h-10 bg-pink-100 rounded-full flex items-center justify-center mr-4 mt-1">
+                        <span class="text-pink-600 font-bold">5</span>
+                    </div>
+                    <div class="flex-1">
+                        <h2 class="text-xl font-semibold text-gray-800 mb-3">Konfirmasi Penghapusan</h2>
+                        <p class="text-gray-600 mb-3">
+                            Baca peringatan yang muncul dengan seksama. Jika Anda yakin ingin menghapus akun, ketuk tombol "Hapus" atau "Delete".
+                        </p>
+                        <p class="text-gray-600">
+                            Proses penghapusan akan dimulai dan semua data lokal akan dihapus secara permanen.
+                        </p>
+                    </div>
+                </div>
+                
+                <div class="flex items-start">
+                    <div class="flex-shrink-0 w-10 h-10 bg-pink-100 rounded-full flex items-center justify-center mr-4 mt-1">
+                        <span class="text-pink-600 font-bold">6</span>
+                    </div>
+                    <div class="flex-1">
+                        <h2 class="text-xl font-semibold text-gray-800 mb-3">Verifikasi Penghapusan</h2>
+                        <p class="text-gray-600">
+                            Setelah proses selesai, aplikasi akan menampilkan pesan konfirmasi bahwa akun dan semua data telah berhasil dihapus.
+                        </p>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="mt-12 bg-pink-50 p-8 rounded-xl">
+                <h2 class="text-2xl font-semibold text-gray-800 mb-4">Jika Anda Tidak Dapat Mengakses Aplikasi</h2>
+                
+                <div class="space-y-4">
+                    <div class="flex items-start">
+                        <div class="flex-shrink-0 w-6 h-6 bg-pink-200 rounded-full flex items-center justify-center mr-3 mt-1">
+                            <span class="text-pink-700 text-xs font-bold">A</span>
+                        </div>
+                        <div>
+                            <h3 class="text-lg font-medium text-gray-800">Melalui Pengaturan Perangkat</h3>
+                            <p class="text-gray-600 mt-1">
+                                Buka "Pengaturan" di perangkat Android Anda > Pilih "Aplikasi" atau "Apps" > Temukan "Aminmart Password Manager" > Pilih "Penyimpanan" atau "Storage" > Ketuk "Hapus Data" atau "Clear Data". Ini akan menghapus semua data aplikasi secara lokal.
+                            </p>
+                        </div>
+                    </div>
+                    
+                    <div class="flex items-start">
+                        <div class="flex-shrink-0 w-6 h-6 bg-pink-200 rounded-full flex items-center justify-center mr-3 mt-1">
+                            <span class="text-pink-700 text-xs font-bold">B</span>
+                        </div>
+                        <div>
+                            <h3 class="text-lg font-medium text-gray-800">Menghapus Aplikasi</h3>
+                            <p class="text-gray-600 mt-1">
+                                Tekan lama ikon aplikasi di layar beranda > Pilih "Uninstall" atau "Hapus". Ini akan menghapus aplikasi beserta semua data yang disimpan secara lokal.
+                            </p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="mt-10 bg-rose-50 border-l-4 border-rose-500 p-6 rounded-lg">
+                <div class="flex">
+                    <div class="flex-shrink-0">
+                        <i class="fas fa-info-circle text-rose-500 text-xl"></i>
+                    </div>
+                    <div class="ml-4">
+                        <p class="text-rose-700 font-medium">Catatan Tambahan:</p>
+                        <ul class="text-rose-600 mt-2 list-disc pl-5 space-y-1">
+                            <li>Data hanya disimpan secara lokal di perangkat Anda, tidak ada akun cloud atau server pusat</li>
+                            <li>Penghapusan data bersifat permanen dan tidak dapat dipulihkan</li>
+                            <li>Jika Anda memiliki pertanyaan lebih lanjut, silakan hubungi tim dukungan kami</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Related Links Section -->
+    <section class="py-16 bg-pink-50">
+        <div class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
+            <h2 class="text-3xl font-bold text-center text-gray-800 mb-10">Tautan Terkait</h2>
+            
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <a href="index.html" class="bg-white p-6 rounded-xl shadow-sm hover:shadow-md transition-shadow duration-300 flex items-center">
+                    <div class="flex-shrink-0 w-12 h-12 bg-pink-100 rounded-lg flex items-center justify-center mr-4">
+                        <i class="fas fa-home text-pink-600"></i>
+                    </div>
+                    <div>
+                        <h3 class="font-semibold text-gray-800">Beranda</h3>
+                        <p class="text-gray-600 text-sm">Kembali ke halaman utama</p>
+                    </div>
+                </a>
+                
+                <a href="contact.html" class="bg-white p-6 rounded-xl shadow-sm hover:shadow-md transition-shadow duration-300 flex items-center">
+                    <div class="flex-shrink-0 w-12 h-12 bg-pink-100 rounded-lg flex items-center justify-center mr-4">
+                        <i class="fas fa-envelope text-pink-600"></i>
+                    </div>
+                    <div>
+                        <h3 class="font-semibold text-gray-800">Hubungi Kami</h3>
+                        <p class="text-gray-600 text-sm">Dapatkan bantuan lebih lanjut</p>
+                    </div>
+                </a>
+            </div>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer class="bg-pink-800 text-white py-10">
+        <div class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="text-center">
+                <p>&copy; 2026 Aminmart Password Manager. Semua hak dilindungi.</p>
+                <div class="mt-4 flex justify-center space-x-6">
+                    <a href="index.html" class="hover:text-pink-300 transition duration-300">Home</a>
+                    <a href="support-id.html" class="hover:text-pink-300 transition duration-300">Dukungan</a>
+                    <a href="support-en.html" class="hover:text-pink-300 transition duration-300">Support</a>
+                    <a href="contact.html" class="hover:text-pink-300 transition duration-300">Hubungi Kami</a>
+                    <a href="analytics-dashboard.html" class="hover:text-pink-300 transition duration-300">Analytics</a>
+                </div>
+            </div>
+        </div>
+    </footer>
+
+    <script>
+        // Mobile menu toggle
+        const mobileMenuButton = document.querySelector('.mobile-menu-button');
+        const mobileMenu = document.querySelector('.mobile-menu');
+        
+        if(mobileMenuButton && mobileMenu) {
+            mobileMenuButton.addEventListener('click', () => {
+                mobileMenu.classList.toggle('hidden');
+            });
+        }
+    </script>
+</body>
+</html>

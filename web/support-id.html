@@ -1,0 +1,196 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dukungan - Aminmart Password Manager</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script src="analytics.js"></script>
+</head>
+<body class="bg-gradient-to-br from-pink-50 to-rose-100 min-h-screen">
+    <!-- Navigation -->
+    <nav class="bg-white shadow-lg sticky top-0 z-50">
+        <div class="max-w-6xl mx-auto px-4">
+            <div class="flex justify-between">
+                <div class="flex space-x-7">
+                    <div>
+                        <a href="index.html" class="flex items-center py-4 px-2">
+                            <span class="font-semibold text-lg text-pink-600">Aminmart Password Manager</span>
+                        </a>
+                    </div>
+                </div>
+                <div class="hidden md:flex items-center space-x-4">
+                    <a href="index.html" class="py-4 px-2 text-gray-500 hover:text-pink-600 transition duration-300">Beranda</a>
+                    <a href="support-id.html" class="py-4 px-2 text-pink-600 border-b-2 border-pink-600 font-semibold">Dukungan</a>
+                    <a href="support-en.html" class="py-4 px-2 text-gray-500 hover:text-pink-600 transition duration-300">Support</a>
+                    <a href="contact.html" class="py-4 px-2 text-gray-500 hover:text-pink-600 transition duration-300">Hubungi Kami</a>
+                    <a href="delete-account.html" class="py-4 px-2 text-gray-500 hover:text-pink-600 transition duration-300">Cara Hapus Akun</a>
+                    <a href="analytics-dashboard.html" class="py-4 px-2 text-gray-500 hover:text-pink-600 transition duration-300">Analytics</a>
+                </div>
+                <div class="md:hidden flex items-center">
+                    <button class="outline-none mobile-menu-button">
+                        <svg class="w-6 h-6 text-gray-500" x-show="!showMenu" fill="none" 
+                            stroke-linecap="round" stroke-linejoin="round" stroke-width="2" 
+                            viewBox="0 0 24 24" stroke="currentColor">
+                            <path d="M4 6h16M4 12h16M4 18h16"></path>
+                        </svg>
+                    </button>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Support Section -->
+    <section class="py-16 bg-white">
+        <div class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
+            <h1 class="text-3xl md:text-4xl font-bold text-center text-gray-800 mb-4">Pusat Dukungan</h1>
+            <div class="text-center mb-8">
+                <p class="text-gray-600">Halaman dilihat: <span id="page-views-count">0</span> kali | Download: <span id="download-count">0</span> kali</p>
+            </div>
+            <p class="text-center text-gray-600 mb-12 max-w-2xl mx-auto">
+                Temukan jawaban untuk pertanyaan umum dan panduan penggunaan Aminmart Password Manager
+            </p>
+            
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-8 mb-12">
+                <div class="bg-pink-50 p-6 rounded-xl">
+                    <h2 class="text-xl font-semibold text-pink-800 mb-4 flex items-center">
+                        <i class="fas fa-download mr-2"></i> Unduh Aplikasi
+                    </h2>
+                    <p class="text-gray-700 mb-4">
+                        Unduh versi terbaru Aminmart Password Manager untuk perangkat Android Anda.
+                    </p>
+                    <a href="./apk/" class="inline-block bg-rose-500 hover:bg-rose-600 text-white font-bold py-2 px-6 rounded-lg transition duration-300">
+                        <i class="fas fa-download mr-2"></i>Unduh APK
+                    </a>
+                </div>
+                
+                <div class="bg-rose-50 p-6 rounded-xl">
+                    <h2 class="text-xl font-semibold text-rose-800 mb-4 flex items-center">
+                        <i class="fas fa-question-circle mr-2"></i> Butuh Bantuan?
+                    </h2>
+                    <p class="text-gray-700 mb-4">
+                        Tidak menemukan jawaban yang Anda cari? Hubungi tim dukungan kami.
+                    </p>
+                    <a href="contact.html" class="inline-block bg-pink-600 hover:bg-pink-700 text-white font-bold py-2 px-6 rounded-lg transition duration-300">
+                        <i class="fas fa-envelope mr-2"></i>Hubungi Kami
+                    </a>
+                </div>
+            </div>
+            
+            <!-- FAQ Section -->
+            <div class="mb-12">
+                <h2 class="text-2xl font-bold text-gray-800 mb-6">Pertanyaan Umum</h2>
+                
+                <div class="space-y-6">
+                    <div class="bg-pink-50 p-6 rounded-xl">
+                        <h3 class="text-lg font-semibold text-gray-800 mb-2">Apa itu Aminmart Password Manager?</h3>
+                        <p class="text-gray-600">
+                            Aminmart Password Manager adalah aplikasi pengelola kata sandi offline yang dirancang untuk menyimpan dan mengamankan kata sandi Anda tanpa harus terhubung ke internet. Data Anda tetap berada di perangkat Anda sendiri dan tidak pernah diunggah ke server manapun.
+                        </p>
+                    </div>
+                    
+                    <div class="bg-pink-50 p-6 rounded-xl">
+                        <h3 class="text-lg font-semibold text-gray-800 mb-2">Apakah aman menggunakan aplikasi ini?</h3>
+                        <p class="text-gray-600">
+                            Ya, sangat aman. Aplikasi ini menggunakan enkripsi AES-256 untuk melindungi data sensitif seperti kata sandi dan catatan. Karena bersifat offline, tidak ada risiko data Anda dicuri melalui internet. Data hanya disimpan secara lokal di perangkat Anda.
+                        </p>
+                    </div>
+                    
+                    <div class="bg-pink-50 p-6 rounded-xl">
+                        <h3 class="text-lg font-semibold text-gray-800 mb-2">Bagaimana cara menambahkan kata sandi baru?</h3>
+                        <p class="text-gray-600">
+                            Buka aplikasi dan ketuk tombol "+" atau "Tambah" di layar utama. Isi detail akun seperti judul, nama pengguna, kata sandi, dan situs web. Anda juga dapat menetapkan kategori dan menambahkan catatan tambahan jika diperlukan.
+                        </p>
+                    </div>
+                    
+                    <div class="bg-pink-50 p-6 rounded-xl">
+                        <h3 class="text-lg font-semibold text-gray-800 mb-2">Apakah saya bisa menggunakan fitur biometrik?</h3>
+                        <p class="text-gray-600">
+                            Ya, aplikasi ini mendukung autentikasi sidik jari dan pengenalan wajah (jika perangkat Anda mendukungnya). Anda dapat mengaktifkan fitur ini di menu pengaturan untuk membuka kunci aplikasi dengan lebih cepat dan aman.
+                        </p>
+                    </div>
+                    
+                    <div class="bg-pink-50 p-6 rounded-xl">
+                        <h3 class="text-lg font-semibold text-gray-800 mb-2">Bagaimana jika saya lupa kata sandi utama?</h3>
+                        <p class="text-gray-600">
+                            Karena aplikasi ini bersifat offline dan tidak memiliki server pusat, tidak ada cara untuk memulihkan kata sandi utama. Jika Anda lupa kata sandi utama, satu-satunya solusi adalah menghapus data aplikasi dan memulai dari awal. Pastikan untuk mencadangkan data penting secara berkala.
+                        </p>
+                    </div>
+                    
+                    <div class="bg-pink-50 p-6 rounded-xl">
+                        <h3 class="text-lg font-semibold text-gray-800 mb-2">Apakah aplikasi ini tersedia untuk iOS?</h3>
+                        <p class="text-gray-600">
+                            Saat ini, Aminmart Password Manager hanya tersedia untuk perangkat Android. Versi iOS sedang dalam pengembangan dan akan dirilis di masa mendatang.
+                        </p>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Troubleshooting Section -->
+            <div class="mb-12">
+                <h2 class="text-2xl font-bold text-gray-800 mb-6">Pemecahan Masalah</h2>
+                
+                <div class="bg-yellow-50 border-l-4 border-yellow-500 p-6 rounded-lg">
+                    <h3 class="text-lg font-semibold text-yellow-800 mb-2">Aplikasi tidak bisa dibuka</h3>
+                    <ul class="list-disc pl-5 text-yellow-700 space-y-1">
+                        <li>Restart perangkat Anda dan coba buka kembali aplikasi</li>
+                        <li>Periksa apakah aplikasi memiliki izin yang diperlukan</li>
+                        <li>Hapus cache aplikasi melalui pengaturan perangkat</li>
+                        <li>Jika masalah terus berlanjut, instal ulang aplikasi</li>
+                    </ul>
+                </div>
+                
+                <div class="bg-yellow-50 border-l-4 border-yellow-500 p-6 rounded-lg mt-4">
+                    <h3 class="text-lg font-semibold text-yellow-800 mb-2">Fitur biometrik tidak berfungsi</h3>
+                    <ul class="list-disc pl-5 text-yellow-700 space-y-1">
+                        <li>Pastikan fitur sidik jari/wajah aktif di pengaturan perangkat</li>
+                        <li>Periksa apakah sensor biometrik bersih dan tidak rusak</li>
+                        <li>Nonaktifkan dan aktifkan kembali fitur biometrik di pengaturan aplikasi</li>
+                        <li>Pastikan aplikasi memiliki izin untuk mengakses fitur biometrik</li>
+                    </ul>
+                </div>
+            </div>
+            
+            <!-- Video Tutorial Section -->
+            <div class="bg-pink-50 p-8 rounded-xl">
+                <h2 class="text-2xl font-bold text-gray-800 mb-6 text-center">Tutorial Video</h2>
+                <div class="aspect-w-16 aspect-h-9 max-w-2xl mx-auto bg-pink-200 border-2 border-dashed rounded-xl w-full h-64 flex items-center justify-center">
+                    <span class="text-pink-500">Video Tutorial Akan Segera Ditambahkan</span>
+                </div>
+                <p class="text-center text-gray-600 mt-4">
+                    Ikuti tutorial video langkah demi langkah untuk mempelajari cara menggunakan fitur-fitur aplikasi
+                </p>
+            </div>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer class="bg-pink-800 text-white py-10">
+        <div class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="text-center">
+                <p>&copy; 2026 Aminmart Password Manager. Semua hak dilindungi.</p>
+                <div class="mt-4 flex justify-center space-x-6">
+                    <a href="index.html" class="hover:text-pink-300 transition duration-300">Beranda</a>
+                    <a href="support-en.html" class="hover:text-pink-300 transition duration-300">English Support</a>
+                    <a href="contact.html" class="hover:text-pink-300 transition duration-300">Hubungi Kami</a>
+                    <a href="delete-account.html" class="hover:text-pink-300 transition duration-300">Cara Hapus Akun</a>
+                    <a href="analytics-dashboard.html" class="hover:text-pink-300 transition duration-300">Analytics</a>
+                </div>
+            </div>
+        </div>
+    </footer>
+
+    <script>
+        // Mobile menu toggle
+        const mobileMenuButton = document.querySelector('.mobile-menu-button');
+        const mobileMenu = document.querySelector('.mobile-menu');
+        
+        if(mobileMenuButton && mobileMenu) {
+            mobileMenuButton.addEventListener('click', () => {
+                mobileMenu.classList.toggle('hidden');
+            });
+        }
+    </script>
+</body>
+</html>

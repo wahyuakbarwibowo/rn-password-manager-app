@@ -108,3 +108,6 @@ lint/reports/
 .DS_Store
 Thumbs.db
 .kotlin/
+
+# Web site APK download (not a build artifact)
+!web/apk/*.apk
