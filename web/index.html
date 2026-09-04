@@ -1,62 +1,56 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="id">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Aminmart Password Manager - Secure Offline Password Protection</title>
+    <title>Aminmart Password Manager - Pengelola Kata Sandi Offline</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <script src="analytics.js"></script>
 </head>
-<body class="bg-gradient-to-br from-pink-50 to-rose-100 min-h-screen">
+<body class="bg-neutral-50 min-h-screen text-neutral-900">
     <!-- Navigation -->
-    <nav class="bg-white shadow-lg sticky top-0 z-50">
+    <nav class="bg-white border-b border-neutral-200 sticky top-0 z-50">
         <div class="max-w-6xl mx-auto px-4">
             <div class="flex justify-between">
-                <div class="flex space-x-7">
-                    <div>
-                        <a href="#" class="flex items-center py-4 px-2">
-                            <span class="font-semibold text-lg text-pink-600">Aminmart Password Manager</span>
-                        </a>
-                    </div>
-                </div>
+                <a href="index.html" class="flex items-center py-4 px-2">
+                    <span class="font-semibold text-lg text-rose-600">Aminmart Password Manager</span>
+                </a>
                 <div class="hidden md:flex items-center space-x-4">
-                    <a href="#home" class="py-4 px-2 text-pink-600 border-b-2 border-pink-600 font-semibold">Home</a>
-                    <a href="support-id.html" class="py-4 px-2 text-gray-500 hover:text-pink-600 transition duration-300">Dukungan</a>
-                    <a href="support-en.html" class="py-4 px-2 text-gray-500 hover:text-pink-600 transition duration-300">Support</a>
-                    <a href="contact.html" class="py-4 px-2 text-gray-500 hover:text-pink-600 transition duration-300">Hubungi Kami</a>
-                    <a href="delete-account.html" class="py-4 px-2 text-gray-500 hover:text-pink-600 transition duration-300">Cara Hapus Akun</a>
-                    <a href="analytics-dashboard.html" class="py-4 px-2 text-gray-500 hover:text-pink-600 transition duration-300">Analytics</a>
+                    <a href="#home" class="py-4 px-2 text-rose-600 border-b-2 border-rose-600 font-semibold">Home</a>
+                    <a href="support-id.html" class="py-4 px-2 text-neutral-500 hover:text-rose-600 transition-colors">Dukungan</a>
+                    <a href="support-en.html" class="py-4 px-2 text-neutral-500 hover:text-rose-600 transition-colors">Support</a>
+                    <a href="contact.html" class="py-4 px-2 text-neutral-500 hover:text-rose-600 transition-colors">Hubungi Kami</a>
+                    <a href="delete-account.html" class="py-4 px-2 text-neutral-500 hover:text-rose-600 transition-colors">Cara Hapus Akun</a>
                 </div>
                 <div class="md:hidden flex items-center">
-                    <button class="outline-none mobile-menu-button">
-                        <svg class="w-6 h-6 text-gray-500" x-show="!showMenu" fill="none"
-                            stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                            viewBox="0 0 24 24" stroke="currentColor">
+                    <button class="outline-none mobile-menu-button p-2 text-neutral-500 hover:text-rose-600" aria-label="Buka menu">
+                        <svg class="w-6 h-6" fill="none" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" viewBox="0 0 24 24" stroke="currentColor">
                             <path d="M4 6h16M4 12h16M4 18h16"></path>
                         </svg>
                     </button>
                 </div>
             </div>
         </div>
+        <div class="mobile-menu hidden md:hidden border-t border-neutral-200">
+            <a href="#home" class="block px-4 py-3 text-rose-600 font-semibold">Home</a>
+            <a href="support-id.html" class="block px-4 py-3 text-neutral-600 hover:bg-neutral-50">Dukungan</a>
+            <a href="support-en.html" class="block px-4 py-3 text-neutral-600 hover:bg-neutral-50">Support</a>
+            <a href="contact.html" class="block px-4 py-3 text-neutral-600 hover:bg-neutral-50">Hubungi Kami</a>
+            <a href="delete-account.html" class="block px-4 py-3 text-neutral-600 hover:bg-neutral-50">Cara Hapus Akun</a>
+        </div>
     </nav>
 
     <!-- Hero Section -->
-    <section id="home" class="py-16 md:py-24 bg-gradient-to-r from-pink-500 to-rose-600 text-white">
+    <section id="home" class="py-16 md:py-24 bg-gradient-to-r from-rose-600 to-rose-700 text-white">
         <div class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
             <div class="text-center">
                 <h1 class="text-4xl md:text-6xl font-extrabold mb-6">Aminmart Password Manager</h1>
-                <p class="text-xl md:text-2xl max-w-3xl mx-auto mb-6 opacity-90">
+                <p class="text-xl md:text-2xl max-w-3xl mx-auto mb-10 text-rose-50">
                     Aplikasi pengelola kata sandi offline yang aman dan mudah digunakan untuk perangkat Android Anda
                 </p>
-                <div class="mb-6 bg-white bg-opacity-20 rounded-lg p-4 inline-block">
-                    <p class="text-white">Dilihat: <span id="page-views-count">0</span> kali | Download: <span id="download-count">0</span> kali</p>
-                </div>
-                <div class="mt-6">
-                    <a href="./apk/app-arm64-v8a-release.apk" class="inline-block bg-rose-500 hover:bg-rose-600 text-white font-bold py-4 px-8 rounded-full text-lg transition duration-300 transform hover:scale-105">
-                        <i class="fas fa-download mr-2"></i>Download APK
-                    </a>
-                </div>
+                <a href="./apk/app-arm64-v8a-release.apk" class="inline-flex items-center gap-2 bg-white text-rose-700 font-semibold py-3 px-6 rounded-lg hover:bg-rose-50 transition-colors">
+                    <i class="fas fa-download"></i>Download APK
+                </a>
             </div>
         </div>
     </section>
@@ -64,35 +58,35 @@
     <!-- Features Section -->
     <section class="py-16 bg-white">
         <div class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
-            <h2 class="text-3xl font-bold text-center text-gray-800 mb-12">Fitur Utama</h2>
-            <div class="grid grid-cols-1 md:grid-cols-3 gap-10">
-                <div class="bg-pink-50 p-8 rounded-xl shadow-md text-center hover:shadow-lg transition-shadow duration-300">
-                    <div class="w-16 h-16 bg-pink-100 rounded-full flex items-center justify-center mx-auto mb-6">
-                        <i class="fas fa-shield-alt text-pink-600 text-2xl"></i>
+            <h2 class="text-3xl font-bold text-center text-neutral-900 mb-12">Fitur Utama</h2>
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
+                <div class="p-6 rounded-lg border border-neutral-200">
+                    <div class="w-12 h-12 bg-rose-50 rounded-lg flex items-center justify-center mb-5">
+                        <i class="fas fa-shield-alt text-rose-600 text-xl"></i>
                     </div>
-                    <h3 class="text-xl font-semibold text-gray-800 mb-3">Keamanan Offline</h3>
-                    <p class="text-gray-600">
-                        Data Anda tidak pernah meninggalkan perangkat Anda. Tidak ada koneksi internet diperlukan untuk menyimpan dan mengakses kata sandi Anda.
+                    <h3 class="text-lg font-semibold text-neutral-900 mb-2">Sepenuhnya Offline</h3>
+                    <p class="text-neutral-600">
+                        Data Anda tidak pernah meninggalkan perangkat. Tidak ada koneksi internet atau server yang terlibat.
                     </p>
                 </div>
 
-                <div class="bg-pink-50 p-8 rounded-xl shadow-md text-center hover:shadow-lg transition-shadow duration-300">
-                    <div class="w-16 h-16 bg-pink-100 rounded-full flex items-center justify-center mx-auto mb-6">
-                        <i class="fas fa-lock text-pink-600 text-2xl"></i>
+                <div class="p-6 rounded-lg border border-neutral-200">
+                    <div class="w-12 h-12 bg-rose-50 rounded-lg flex items-center justify-center mb-5">
+                        <i class="fas fa-lock text-rose-600 text-xl"></i>
                     </div>
-                    <h3 class="text-xl font-semibold text-gray-800 mb-3">Enkripsi AES-256</h3>
-                    <p class="text-gray-600">
-                        Perlindungan tingkat militer dengan enkripsi AES-256 untuk menjaga kerahasiaan kata sandi dan catatan Anda.
+                    <h3 class="text-lg font-semibold text-neutral-900 mb-2">Enkripsi AES-256-GCM</h3>
+                    <p class="text-neutral-600">
+                        Kata sandi dan catatan dienkripsi dengan kunci AES-256-GCM yang tersimpan di Android Keystore perangkat.
                     </p>
                 </div>
 
-                <div class="bg-pink-50 p-8 rounded-xl shadow-md text-center hover:shadow-lg transition-shadow duration-300">
-                    <div class="w-16 h-16 bg-pink-100 rounded-full flex items-center justify-center mx-auto mb-6">
-                        <i class="fas fa-mobile-alt text-pink-600 text-2xl"></i>
+                <div class="p-6 rounded-lg border border-neutral-200">
+                    <div class="w-12 h-12 bg-rose-50 rounded-lg flex items-center justify-center mb-5">
+                        <i class="fas fa-fingerprint text-rose-600 text-xl"></i>
                     </div>
-                    <h3 class="text-xl font-semibold text-gray-800 mb-3">Antarmuka Sederhana</h3>
-                    <p class="text-gray-600">
-                        Desain yang intuitif dan mudah digunakan membuat pengelolaan kata sandi menjadi lebih praktis.
+                    <h3 class="text-lg font-semibold text-neutral-900 mb-2">Unlock Biometrik</h3>
+                    <p class="text-neutral-600">
+                        Buka kunci vault dengan sidik jari atau wajah, dengan penguncian otomatis saat aplikasi tidak digunakan.
                     </p>
                 </div>
             </div>
@@ -100,71 +94,67 @@
     </section>
 
     <!-- Tech Stack Section -->
-    <section class="py-16 bg-pink-50">
+    <section class="py-16 bg-neutral-50">
         <div class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
-            <h2 class="text-3xl font-bold text-center text-gray-800 mb-12">Teknologi yang Digunakan</h2>
-            <div class="bg-white p-8 rounded-xl shadow-md">
+            <h2 class="text-3xl font-bold text-center text-neutral-900 mb-12">Teknologi yang Digunakan</h2>
+            <div class="bg-white p-8 rounded-lg border border-neutral-200">
                 <div class="grid grid-cols-2 md:grid-cols-4 gap-6">
                     <div class="text-center">
-                        <div class="w-16 h-16 bg-pink-100 rounded-full flex items-center justify-center mx-auto mb-3">
-                            <i class="fab fa-react text-pink-600 text-xl"></i>
+                        <div class="w-14 h-14 bg-rose-50 rounded-lg flex items-center justify-center mx-auto mb-3">
+                            <i class="fab fa-android text-rose-600 text-xl"></i>
                         </div>
-                        <p class="font-medium">React Native</p>
+                        <p class="font-medium text-sm">Kotlin</p>
                     </div>
                     <div class="text-center">
-                        <div class="w-16 h-16 bg-rose-100 rounded-full flex items-center justify-center mx-auto mb-3">
-                            <i class="fab fa-expeditedssl text-rose-600 text-xl"></i>
+                        <div class="w-14 h-14 bg-rose-50 rounded-lg flex items-center justify-center mx-auto mb-3">
+                            <i class="fas fa-layer-group text-rose-600 text-xl"></i>
                         </div>
-                        <p class="font-medium">Expo</p>
+                        <p class="font-medium text-sm">Jetpack Compose</p>
                     </div>
                     <div class="text-center">
-                        <div class="w-16 h-16 bg-fuchsia-100 rounded-full flex items-center justify-center mx-auto mb-3">
-                            <i class="fas fa-database text-fuchsia-600 text-xl"></i>
+                        <div class="w-14 h-14 bg-rose-50 rounded-lg flex items-center justify-center mx-auto mb-3">
+                            <i class="fas fa-database text-rose-600 text-xl"></i>
                         </div>
-                        <p class="font-medium">SQLite</p>
+                        <p class="font-medium text-sm">SQLite</p>
                     </div>
                     <div class="text-center">
-                        <div class="w-16 h-16 bg-pink-200 rounded-full flex items-center justify-center mx-auto mb-3">
-                            <i class="fas fa-key text-pink-700 text-xl"></i>
+                        <div class="w-14 h-14 bg-rose-50 rounded-lg flex items-center justify-center mx-auto mb-3">
+                            <i class="fas fa-key text-rose-600 text-xl"></i>
                         </div>
-                        <p class="font-medium">Crypto-JS</p>
+                        <p class="font-medium text-sm">Android Keystore</p>
                     </div>
                 </div>
             </div>
         </div>
     </section>
 
-    <!-- Security Disclaimer Section -->
+    <!-- Security Section -->
     <section class="py-16 bg-white">
         <div class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
-            <div class="bg-gradient-to-r from-green-50 to-emerald-50 border-l-4 border-green-500 p-8 rounded-xl shadow-md">
+            <div class="bg-emerald-50 border-l-4 border-emerald-500 p-8 rounded-lg">
                 <div class="flex items-start">
-                    <div class="flex-shrink-0">
-                        <i class="fas fa-shield-alt text-green-600 text-3xl"></i>
-                    </div>
+                    <i class="fas fa-shield-alt text-emerald-600 text-2xl flex-shrink-0"></i>
                     <div class="ml-4">
-                        <h2 class="text-2xl font-bold text-gray-800 mb-4">Keamanan Aplikasi</h2>
-                        <div class="prose prose-green max-w-none">
-                            <p class="text-gray-700 mb-4">
-                                <strong>Gunakan aplikasi ini dengan percaya diri untuk menyimpan kata sandi Anda.</strong> Aplikasi ini berjalan sepenuhnya offline, sehingga data Anda tidak pernah meninggalkan perangkat.
-                            </p>
-                            <div class="bg-white bg-opacity-70 rounded-lg p-6 mt-4">
-                                <h3 class="text-lg font-semibold text-gray-800 mb-3 flex items-center">
-                                    <i class="fas fa-check-circle text-green-600 mr-2"></i>
-                                    Mengapa Aman?
-                                </h3>
-                                <ul class="list-disc list-inside space-y-2 text-gray-700">
-                                    <li><strong>100% Offline</strong> - Data tersimpan lokal di perangkat Anda, tidak ada koneksi internet yang diperlukan</li>
-                                    <li><strong>Tidak Ada Server</strong> - Tidak ada data yang dikirim ke server atau cloud</li>
-                                    <li><strong>Enkripsi XOR</strong> - Password dienkripsi menggunakan logika XOR untuk perlindungan dasar</li>
-                                    <li><strong>Master Password</strong> - Hanya Anda yang tahu master password untuk membuka vault</li>
-                                </ul>
-                                <div class="bg-yellow-50 border border-yellow-200 rounded-lg p-4 mt-4">
-                                    <p class="text-gray-700">
-                                        <i class="fas fa-exclamation-circle text-yellow-600 mr-2"></i>
-                                        <strong>Penting:</strong> Pastikan Anda tidak lupa master password! Karena tidak ada server atau cloud, tidak ada cara untuk mereset atau memulihkan master password yang terlupa.
-                                    </p>
-                                </div>
+                        <h2 class="text-2xl font-bold text-neutral-900 mb-4">Keamanan Aplikasi</h2>
+                        <p class="text-neutral-700 mb-4">
+                            <strong>Gunakan aplikasi ini dengan percaya diri untuk menyimpan kata sandi Anda.</strong> Aplikasi ini berjalan sepenuhnya offline, sehingga data Anda tidak pernah meninggalkan perangkat.
+                        </p>
+                        <div class="bg-white rounded-lg p-6 mt-4 border border-emerald-100">
+                            <h3 class="text-lg font-semibold text-neutral-900 mb-3 flex items-center">
+                                <i class="fas fa-check-circle text-emerald-600 mr-2"></i>
+                                Mengapa Aman?
+                            </h3>
+                            <ul class="list-disc list-inside space-y-2 text-neutral-700">
+                                <li><strong>100% Offline</strong> - Data tersimpan lokal di perangkat Anda, tidak ada koneksi internet yang diperlukan</li>
+                                <li><strong>Tidak Ada Server</strong> - Tidak ada data yang dikirim ke server atau cloud</li>
+                                <li><strong>Enkripsi AES-256-GCM</strong> - Kata sandi dan catatan dienkripsi dengan kunci hardware-backed dari Android Keystore</li>
+                                <li><strong>Master Password</strong> - Diverifikasi dengan PBKDF2 (100.000 iterasi); hanya Anda yang tahu master password untuk membuka vault</li>
+                            </ul>
+                            <div class="bg-amber-50 border border-amber-200 rounded-lg p-4 mt-4">
+                                <p class="text-neutral-700">
+                                    <i class="fas fa-exclamation-circle text-amber-600 mr-2"></i>
+                                    <strong>Penting:</strong> Pastikan Anda tidak lupa master password! Karena tidak ada server atau cloud, tidak ada cara untuk mereset atau memulihkan master password yang terlupa.
+                                </p>
                             </div>
                         </div>
                     </div>
@@ -174,40 +164,37 @@
     </section>
 
     <!-- Download Section -->
-    <section class="py-16 bg-gradient-to-r from-pink-500 to-rose-600 text-white">
+    <section class="py-16 bg-gradient-to-r from-rose-600 to-rose-700 text-white">
         <div class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
-            <h2 class="text-3xl font-bold mb-6">Siap Mengamankan Kata Sandi Anda?</h2>
-            <p class="text-xl mb-10 opacity-90">
+            <h2 class="text-3xl font-bold mb-4">Siap Mengamankan Kata Sandi Anda?</h2>
+            <p class="text-xl mb-8 text-rose-50">
                 Unduh aplikasi Aminmart Password Manager sekarang dan nikmati perlindungan kata sandi offline yang aman dan mudah digunakan.
             </p>
-            <a href="./apk/" class="inline-block bg-rose-500 hover:bg-rose-600 text-white font-bold py-4 px-10 rounded-full text-lg transition duration-300 transform hover:scale-105">
-                <i class="fas fa-download mr-2"></i>Download Sekarang
+            <a href="./apk/" class="inline-flex items-center gap-2 bg-white text-rose-700 font-semibold py-3 px-6 rounded-lg hover:bg-rose-50 transition-colors">
+                <i class="fas fa-download"></i>Download Sekarang
             </a>
         </div>
     </section>
 
     <!-- Footer -->
-    <footer class="bg-pink-800 text-white py-10">
+    <footer class="bg-neutral-900 text-neutral-400 py-10">
         <div class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
             <div class="text-center">
                 <p>&copy; 2026 Aminmart Password Manager. Semua hak dilindungi.</p>
-                <div class="mt-4 flex justify-center space-x-6">
-                    <a href="support-id.html" class="hover:text-pink-300 transition duration-300">Dukungan</a>
-                    <a href="support-en.html" class="hover:text-pink-300 transition duration-300">Support</a>
-                    <a href="contact.html" class="hover:text-pink-300 transition duration-300">Hubungi Kami</a>
-                    <a href="delete-account.html" class="hover:text-pink-300 transition duration-300">Cara Hapus Akun</a>
-                    <a href="analytics-dashboard.html" class="hover:text-pink-300 transition duration-300">Analytics</a>
+                <div class="mt-4 flex justify-center flex-wrap gap-x-6 gap-y-2">
+                    <a href="support-id.html" class="hover:text-white transition-colors">Dukungan</a>
+                    <a href="support-en.html" class="hover:text-white transition-colors">Support</a>
+                    <a href="contact.html" class="hover:text-white transition-colors">Hubungi Kami</a>
+                    <a href="delete-account.html" class="hover:text-white transition-colors">Cara Hapus Akun</a>
                 </div>
             </div>
         </div>
     </footer>
 
     <script>
-        // Mobile menu toggle
         const mobileMenuButton = document.querySelector('.mobile-menu-button');
         const mobileMenu = document.querySelector('.mobile-menu');
-
-        if(mobileMenuButton && mobileMenu) {
+        if (mobileMenuButton && mobileMenu) {
             mobileMenuButton.addEventListener('click', () => {
                 mobileMenu.classList.toggle('hidden');
             });
